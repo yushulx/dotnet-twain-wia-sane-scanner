@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiAppDocScan.MainPage">
+
+    <VerticalStackLayout
+            Spacing="25"
+            Padding="30,0"
+            Margin="10, 10, 10, 10"
+            VerticalOptions="Start" MaximumHeightRequest="600">
+
+
+        <HorizontalStackLayout HorizontalOptions="Center" >
+            <Button
+    x:Name="GetDeviceBtn"
+    Text="Get Devices"
+    Clicked="OnGetDeviceClicked"
+    HorizontalOptions="Center" Margin="0, 0, 10, 0"/>
+
+            <Picker x:Name="DevicePicker" WidthRequest="200"
+                          ItemsSource="{Binding Items}">
+            </Picker>
+
+            <Button
+x:Name="ScanBtn"
+Text="Scan"
+Clicked="OnScanClicked"
+HorizontalOptions="Center" Margin="10, 0, 0, 0"/>
+
+        </HorizontalStackLayout>
+        <ScrollView>
+            <ListView ItemsSource="{Binding Images}" HeightRequest="800">
+                <ListView.ItemTemplate>
+
+                    <DataTemplate>
+                        <ViewCell>
+                            <Image Source="{Binding ImageStream}" Aspect="AspectFit" WidthRequest="600" HeightRequest="800"/>
+                        </ViewCell>
+                        <!--<ImageCell ImageSource="{Binding ImageStream}" />-->
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </ScrollView>
+
+    </VerticalStackLayout>
+
+</ContentPage>

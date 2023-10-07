@@ -163,7 +163,7 @@ public class ScannerController
     /// <param name="host">The URL of the Dynamsoft Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// <returns>A list of image streams.</returns>
-    public List<byte[]> GetImageStreams(string host, string jobId)
+    public async Task<List<byte[]>> GetImageStreams(string host, string jobId)
     {
         var streams = new List<byte[]>();
         var url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
@@ -172,11 +172,12 @@ public class ScannerController
         {
             try
             {
-                var response = _httpClient.GetAsync(url).Result;
+                var response = await _httpClient.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    streams.Add(response.Content.ReadAsByteArrayAsync().Result);
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    streams.Add(bytes);
                 }
                 else if ((int)response.StatusCode == 410)
                 {
