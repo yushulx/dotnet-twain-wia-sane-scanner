@@ -145,6 +145,7 @@ Please select an operation:
 
 ## Example
 - [command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
+- [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
 
 
 ## API
