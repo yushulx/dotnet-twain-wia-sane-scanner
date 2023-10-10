@@ -9,7 +9,7 @@ namespace WinFormsDocScan
         private static string licenseKey = "LICENSE-KEY";
         private static ScannerController scannerController = new ScannerController();
         private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
-        private static string host = "http://192.168.8.72:18622"; // Change this to your server IP address
+        private static string host = "http://127.0.0.1:18622";
         public ObservableCollection<string> Items { get; set; }
         public Form1()
         {
