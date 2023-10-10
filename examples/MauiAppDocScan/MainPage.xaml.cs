@@ -82,9 +82,10 @@ namespace MauiAppDocScan
                     ImageItem item = new ImageItem();
                     item.ImageStream = imageStream;
                     Images.Insert(0, item);
+                    Image image = new Image();
+                    image.Source = imageStream;
+                    ImageContainer.Children.Insert(0, image);
                 }
-
-                scannerController.DeleteJob(host, jobId);
             }
         }
     }

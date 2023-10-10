@@ -3,11 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDocScan.MainPage">
 
-    <VerticalStackLayout
+    <StackLayout
             Spacing="25"
-            Padding="30,0"
             Margin="10, 10, 10, 10"
-            VerticalOptions="Start" MaximumHeightRequest="600">
+            VerticalOptions="Start">
 
 
         <HorizontalStackLayout HorizontalOptions="Center" >
@@ -17,7 +16,7 @@
     Clicked="OnGetDeviceClicked"
     HorizontalOptions="Center" Margin="0, 0, 10, 0"/>
 
-            <Picker x:Name="DevicePicker" WidthRequest="200"
+            <Picker x:Name="DevicePicker" MaximumWidthRequest="150"
                           ItemsSource="{Binding Items}">
             </Picker>
 
@@ -28,20 +27,18 @@ Clicked="OnScanClicked"
 HorizontalOptions="Center" Margin="10, 0, 0, 0"/>
 
         </HorizontalStackLayout>
-        <ScrollView>
-            <ListView ItemsSource="{Binding Images}" HeightRequest="800">
-                <ListView.ItemTemplate>
-
-                    <DataTemplate>
-                        <ViewCell>
-                            <Image Source="{Binding ImageStream}" Aspect="AspectFit" WidthRequest="600" HeightRequest="800"/>
-                        </ViewCell>
-                        <!--<ImageCell ImageSource="{Binding ImageStream}" />-->
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <ScrollView MaximumHeightRequest="800">
+            <StackLayout x:Name="ImageContainer" />
         </ScrollView>
-
-    </VerticalStackLayout>
+        <!--<ListView ItemsSource="{Binding Images}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell >
+                        <Image Source="{Binding ImageStream}" Aspect="AspectFill"/>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>-->
+    </StackLayout>
 
 </ContentPage>
