@@ -146,6 +146,8 @@ Please select an operation:
 ## Example
 - [command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
 - [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
+    ![dotnet-maui-twain-document-scanner](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/642f35fb-ecf4-44ed-aa66-3516be3b5cde)
+
 
 
 ## API
