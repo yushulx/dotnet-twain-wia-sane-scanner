@@ -25,7 +25,7 @@ By default, the REST API's host address is set to `http://127.0.0.1:18622`.
 
 You can navigate to `http://127.0.0.1:18625/` to access the service. To make it accessible from desktop, mobile, and web applications on the same network, you can change the host address to a LAN IP address. For example, you might use `http://192.168.8.72`.
 
-![dynamsoft-service-config](https://github.com/yushulx/dynamsoft-service-REST-API/assets/2202306/e2b1292e-dfbd-4821-bf41-70e2847dd51e)
+![dynamsoft-service-config](https://user-images.githubusercontent.com/2202306/266243200-e2b1292e-dfbd-4821-bf41-70e2847dd51e.png)
 
 The scanner parameter configuration is based on [Dynamsoft Web TWAIN documentation](https://www.dynamsoft.com/web-twain/docs/info/api/Interfaces.html#DeviceConfiguration). 
 
@@ -147,11 +147,11 @@ Please select an operation:
 - [command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
 - [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
   
-    ![dotnet-maui-twain-document-scanner](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/642f35fb-ecf4-44ed-aa66-3516be3b5cde)
+    ![dotnet-maui-twain-document-scanner](https://user-images.githubusercontent.com/2202306/273757545-642f35fb-ecf4-44ed-aa66-3516be3b5cde.png)
 
 - [WinForm](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/WinFormsDocScan)
   
-    ![dotnet-winform-twain-document-scanner](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/c79fe659-9049-4ee8-b76a-24881d48140c)
+    ![dotnet-winform-twain-document-scanner](https://user-images.githubusercontent.com/2202306/273767486-c79fe659-9049-4ee8-b76a-24881d48140c.png)
 
 
 ## API
