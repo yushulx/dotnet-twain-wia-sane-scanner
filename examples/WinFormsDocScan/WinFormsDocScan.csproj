@@ -9,9 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.0.1" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
     <Reference Include="Twain.Wia.Sane.Scanner">
       <HintPath>..\..\Twain.Wia.Sane.Scanner\bin\Debug\net7.0\Twain.Wia.Sane.Scanner.dll</HintPath>
     </Reference>
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>
