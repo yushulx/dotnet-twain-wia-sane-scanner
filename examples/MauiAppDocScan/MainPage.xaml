@@ -30,15 +30,6 @@ HorizontalOptions="Center" Margin="10, 0, 0, 0"/>
         <ScrollView MaximumHeightRequest="800">
             <StackLayout x:Name="ImageContainer" />
         </ScrollView>
-        <!--<ListView ItemsSource="{Binding Images}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell >
-                        <Image Source="{Binding ImageStream}" Aspect="AspectFill"/>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>-->
     </StackLayout>
 
 </ContentPage>

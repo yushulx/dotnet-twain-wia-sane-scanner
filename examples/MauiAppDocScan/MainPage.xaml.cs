@@ -11,20 +11,14 @@ namespace MauiAppDocScan
         private static string licenseKey = "LICENSE-KEY";
         private static ScannerController scannerController = new ScannerController();
         private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
-        private static string host = "http://192.168.8.72:18622";
-
+        private static string host = "http://192.168.8.72:18622"; // Change this to your server IP address
         public ObservableCollection<string> Items { get; set; }
-        public ObservableCollection<ImageItem> Images { get; set; }
 
         public MainPage()
         {
             InitializeComponent();
 
             Items = new ObservableCollection<string>
-            {
-            };
-
-            Images = new ObservableCollection<ImageItem>
             {
             };
 
@@ -79,9 +73,6 @@ namespace MauiAppDocScan
                 {
                     MemoryStream stream = new MemoryStream(images[i]);
                     ImageSource imageStream = ImageSource.FromStream(() => stream);
-                    ImageItem item = new ImageItem();
-                    item.ImageStream = imageStream;
-                    Images.Insert(0, item);
                     Image image = new Image();
                     image.Source = imageStream;
                     ImageContainer.Children.Insert(0, image);
