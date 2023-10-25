@@ -166,30 +166,53 @@ public class ScannerController
     public async Task<List<byte[]>> GetImageStreams(string host, string jobId)
     {
         var streams = new List<byte[]>();
-        var url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
 
         while (true)
         {
-            try
-            {
-                var response = await _httpClient.GetAsync(url);
+            byte[] bytes = await GetImageStream(host, jobId);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                    streams.Add(bytes);
-                }
-                else if ((int)response.StatusCode == 410)
-                {
-                    break;
-                }
-            }
-            catch (Exception)
+            if (bytes.Length == 0)
             {
                 break;
+            }
+            else
+            {
+                streams.Add(bytes);
             }
         }
 
         return streams;
+    }
+
+    /// <summary>
+    /// Get an image stream.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <returns>An image stream.</returns>
+    public async Task<byte[]> GetImageStream(string host, string jobId)
+    {
+        var url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                return bytes;
+            }
+            else if ((int)response.StatusCode == 410)
+            {
+                return Array.Empty<byte>();
+            }
+        }
+        catch (Exception)
+        {
+            return Array.Empty<byte>();
+        }
+
+        return Array.Empty<byte>();
     }
 }

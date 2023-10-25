@@ -160,7 +160,8 @@ Please select an operation:
 - `public async void DeleteJob(string host, string jobId)`: Delete a job.
 - `public async Task<string> GetImageFile(string host, string jobId, string directory)`: Get an image file.
 - `public async Task<List<string>> GetImageFiles(string host, string jobId, string directory)`: Get a list of image files.
-- `public List<byte[]> GetImageStreams(string host, string jobId)`: Get a list of image streams.
+- `public async Task<List<byte[]>> GetImageStreams(string host, string jobId)`: Get a list of image streams.
+- `public async Task<<byte[]> GetImageStream(string host, string jobId)`: Get an image stream.
 
 
 

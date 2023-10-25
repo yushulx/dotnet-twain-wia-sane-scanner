@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Twain.Wia.Sane.Scanner</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Authors>yushulx</Authors>
     <Company>Dynamsoft</Company>
     <TargetFramework>net7.0</TargetFramework>
@@ -18,7 +18,7 @@
     <PackageTags>
       TWAIN;SANE;ICA;eSCL;WIA;Document;Scanner</PackageTags>
     <PackageReleaseNotes>
-      - Updated README.md.
+      - Added GetImageStream() method to get the image stream from the scanner.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
