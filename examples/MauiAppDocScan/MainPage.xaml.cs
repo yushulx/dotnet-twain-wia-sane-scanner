@@ -10,7 +10,7 @@ namespace MauiAppDocScan
 {
     public partial class MainPage : ContentPage
     {
-        private static string licenseKey = "t01868AUAABqoTDQtn760osTyJg8j8v79kgV4X1apc/So5cOwAsBz3PGe+htqLwohs9qxQVGcFA9iox0+nVq1NYF2tSODjPb45cQEp4x3Co138gQnbjmJljyM5bRd8wF24JUB+V6HxqiBUksHvH2tjS0AFiAGIFYNbAGXqzhvPqgPiJ7950APJyY4ZbxTB2SMkyc4ccuZAvJMc2ta7VoCwvrmNAAsQC4Brj+yU0CoB2ABcgLSLgSQixvKvyo8";
+        private static string licenseKey = "LICENSE-KEY";
         private static ScannerController scannerController = new ScannerController();
         private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
         private static string host = "http://127.0.0.1:18622"; // Change this to your server IP address
