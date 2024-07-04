@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections;
-using System.Collections.ObjectModel;
-using System.IO;
+﻿using System.Collections.ObjectModel;
 using Twain.Wia.Sane.Scanner;
+using PdfSharp.Pdf;
+using PdfSharp.Drawing;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Graphics.Platform;
+
 
 namespace MauiAppDocScan
 {
     public partial class MainPage : ContentPage
     {
-        private static string licenseKey = "LICENSE-KEY";
+        private static string licenseKey = "t01868AUAABqoTDQtn760osTyJg8j8v79kgV4X1apc/So5cOwAsBz3PGe+htqLwohs9qxQVGcFA9iox0+nVq1NYF2tSODjPb45cQEp4x3Co138gQnbjmJljyM5bRd8wF24JUB+V6HxqiBUksHvH2tjS0AFiAGIFYNbAGXqzhvPqgPiJ7950APJyY4ZbxTB2SMkyc4ccuZAvJMc2ta7VoCwvrmNAAsQC4Brj+yU0CoB2ABcgLSLgSQixvKvyo8";
         private static ScannerController scannerController = new ScannerController();
         private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
-        private static string host = "http://192.168.8.72:18622"; // Change this to your server IP address
+        private static string host = "http://127.0.0.1:18622"; // Change this to your server IP address
         public ObservableCollection<string> Items { get; set; }
 
         public MainPage()
@@ -23,6 +25,8 @@ namespace MauiAppDocScan
             };
 
             BindingContext = this;
+            ColorPicker.SelectedIndex = 0;
+            ResolutionPicker.SelectedIndex = 0;
         }
 
         private async void OnGetDeviceClicked(object sender, EventArgs e)
@@ -49,6 +53,7 @@ namespace MauiAppDocScan
 
         private async void OnScanClicked(object sender, EventArgs e)
         {
+            if (DevicePicker.SelectedIndex < 0) return;
             var parameters = new Dictionary<string, object>
                 {
                     {"license", licenseKey},
@@ -57,11 +62,11 @@ namespace MauiAppDocScan
 
             parameters["config"] = new Dictionary<string, object>
                 {
-                    {"IfShowUI", false},
-                    {"PixelType", 2},
-                    {"Resolution", 200},
-                    {"IfFeederEnabled", false},
-                    {"IfDuplexEnabled", false}
+                    {"IfShowUI", showUICheckbox.IsChecked},
+                    {"PixelType", ColorPicker.SelectedIndex},
+                    {"Resolution", (int)ResolutionPicker.SelectedItem},
+                    {"IfFeederEnabled", adfCheckbox.IsChecked},
+                    {"IfDuplexEnabled", duplexCheckbox.IsChecked}
                 };
 
             string jobId = await scannerController.ScanDocument(host, parameters);
@@ -74,10 +79,20 @@ namespace MauiAppDocScan
                     MemoryStream stream = new MemoryStream(images[i]);
                     ImageSource imageStream = ImageSource.FromStream(() => stream);
                     Image image = new Image();
+                    image.WidthRequest = 800;
+                    image.HeightRequest = 800;
+                    image.Aspect = Aspect.AspectFit;
+                    image.VerticalOptions = LayoutOptions.CenterAndExpand;
+                    image.HorizontalOptions = LayoutOptions.CenterAndExpand;
                     image.Source = imageStream;
                     ImageContainer.Children.Insert(0, image);
                 }
             }
+        }
+
+        private void OnDeleteAllClicked(object sender, EventArgs e)
+        {
+            ImageContainer.Clear();
         }
     }
 }

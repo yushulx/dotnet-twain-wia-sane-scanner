@@ -3,33 +3,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiAppDocScan.MainPage">
 
-    <StackLayout
-            Spacing="25"
-            Margin="10, 10, 10, 10"
-            VerticalOptions="Start">
+    <HorizontalStackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        
+        <!-- Operation -->
+        <VerticalStackLayout Margin="20" MaximumWidthRequest="400" WidthRequest="400" Spacing="20">
+            <StackLayout  Padding="10" BackgroundColor="#f0f0f0">
+                <Label Text="Acquire Image" FontAttributes="Bold" Margin="0,0,0,10" />
+                <Button x:Name="GetDeviceBtn" Text="Get Devices" Clicked="OnGetDeviceClicked"/>
+                <Picker Title="Select Source" x:Name="DevicePicker" 
+ItemsSource="{Binding Items}">
+                </Picker>
 
+                <Picker Title="Pixel Type" x:Name="ColorPicker">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>B &amp; W</x:String>
+                            <x:String>Gray</x:String>
+                            <x:String>Color</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
 
-        <HorizontalStackLayout HorizontalOptions="Center" >
-            <Button
-    x:Name="GetDeviceBtn"
-    Text="Get Devices"
-    Clicked="OnGetDeviceClicked"
-    HorizontalOptions="Center" Margin="0, 0, 10, 0"/>
+                <Picker Title="Resolution" x:Name="ResolutionPicker">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:Int32}">
+                            <x:Int32>100</x:Int32>
+                            <x:Int32>150</x:Int32>
+                            <x:Int32>200</x:Int32>
+                            <x:Int32>300</x:Int32>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
 
-            <Picker x:Name="DevicePicker" MaximumWidthRequest="150"
-                          ItemsSource="{Binding Items}">
-            </Picker>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="showUICheckbox" />
+                    <Label Text="Show UI" VerticalOptions="Center" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="adfCheckbox" />
+                    <Label Text="ADF" VerticalOptions="Center" />
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="duplexCheckbox" />
+                    <Label Text="Duplex" VerticalOptions="Center" />
+                </StackLayout>
 
-            <Button
-x:Name="ScanBtn"
-Text="Scan"
-Clicked="OnScanClicked"
-HorizontalOptions="Center" Margin="10, 0, 0, 0"/>
+                <Button x:Name="ScanBtn" Text="Scan Now" Clicked="OnScanClicked"/>
 
-        </HorizontalStackLayout>
+            </StackLayout>
+
+            <StackLayout  Padding="10" BackgroundColor="#f0f0f0">
+
+                <Label Text="Image Tools" FontAttributes="Bold" Margin="0,0,0,10" />
+                <Grid RowDefinitions="auto, auto" ColumnDefinitions="auto, auto" RowSpacing="5" ColumnSpacing="5">
+                    <ImageButton Source="delete.png" Clicked="OnDeleteAllClicked" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" Grid.Row="0" Grid.Column="0" />
+                </Grid>
+            </StackLayout>
+        </VerticalStackLayout>
+
+        <!-- Image View -->
         <ScrollView MaximumHeightRequest="800">
             <StackLayout x:Name="ImageContainer" />
         </ScrollView>
-    </StackLayout>
-
+    </HorizontalStackLayout>
 </ContentPage>
