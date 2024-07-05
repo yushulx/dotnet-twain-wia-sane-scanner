@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              x:Class="MauiAppDocScan.MainPage">
 
     <HorizontalStackLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -49,6 +50,7 @@ ItemsSource="{Binding Items}">
                 </StackLayout>
 
                 <Button x:Name="ScanBtn" Text="Scan Now" Clicked="OnScanClicked"/>
+                <Button x:Name="SaveBtn" Text="Save" Clicked="OnSaveClicked"/>
 
             </StackLayout>
 
@@ -57,13 +59,21 @@ ItemsSource="{Binding Items}">
                 <Label Text="Image Tools" FontAttributes="Bold" Margin="0,0,0,10" />
                 <Grid RowDefinitions="auto, auto" ColumnDefinitions="auto, auto" RowSpacing="5" ColumnSpacing="5">
                     <ImageButton Source="delete.png" Clicked="OnDeleteAllClicked" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" Grid.Row="0" Grid.Column="0" />
+                    <ImageButton Source="rotate_left.png" Clicked="OnRotateLeftClicked" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" Grid.Row="1" Grid.Column="0" />
+                    <ImageButton Source="rotate_right.png" Clicked="OnRotateRightClicked" HeightRequest="20" WidthRequest="20" VerticalOptions="Center" Grid.Row="1" Grid.Column="1" />
                 </Grid>
             </StackLayout>
         </VerticalStackLayout>
 
         <!-- Image View -->
-        <ScrollView MaximumHeightRequest="800">
+        <ScrollView x:Name="ImageScrollView" MaximumHeightRequest="800" MaximumWidthRequest="400">
             <StackLayout x:Name="ImageContainer" />
         </ScrollView>
+
+        
+        <Grid>
+            <Image Source="white.png" />
+            <skia:SKCanvasView x:Name="skiaView" PaintSurface="OnCanvasViewPaintSurface"  />
+        </Grid>
     </HorizontalStackLayout>
 </ContentPage>
