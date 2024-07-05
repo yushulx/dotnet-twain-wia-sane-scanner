@@ -147,7 +147,8 @@ Please select an operation:
 - [command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
 - [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
   
-    ![dotnet-maui-twain-document-scanner](https://user-images.githubusercontent.com/2202306/273757545-642f35fb-ecf4-44ed-aa66-3516be3b5cde.png)
+    ![dotnet-maui-twain-document-scanner](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/5df6b2de-80f0-45b7-b8f9-3a394c07153c)
+
 
 - [WinForm](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/WinFormsDocScan)
   
