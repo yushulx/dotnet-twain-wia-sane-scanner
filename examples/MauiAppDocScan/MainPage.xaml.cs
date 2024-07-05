@@ -105,9 +105,9 @@ namespace MauiAppDocScan
 
                 if (ImageContainer.Children.Count > 0)
                 {
-                    selectedIndex = images.Count - 1;
+                    selectedIndex = _streams.Count - 1;
                     var lastImage = ImageContainer.Children.Last();
-                    DrawImage(images[images.Count - 1]);
+                    DrawImage(_streams[_streams.Count - 1]);
                     await ImageScrollView.ScrollToAsync((Image)lastImage, ScrollToPosition.MakeVisible, true);
                 }
             }
