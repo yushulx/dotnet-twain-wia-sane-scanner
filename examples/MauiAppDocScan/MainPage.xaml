@@ -66,12 +66,12 @@ ItemsSource="{Binding Items}">
         </VerticalStackLayout>
 
         <!-- Image View -->
-        <ScrollView x:Name="ImageScrollView" MaximumHeightRequest="800" MaximumWidthRequest="400">
+        <ScrollView x:Name="ImageScrollView" WidthRequest="400" HeightRequest="800">
             <StackLayout x:Name="ImageContainer" />
         </ScrollView>
 
         
-        <Grid>
+        <Grid WidthRequest="800" HeightRequest="800">
             <Image Source="white.png" />
             <skia:SKCanvasView x:Name="skiaView" PaintSurface="OnCanvasViewPaintSurface"  />
         </Grid>
