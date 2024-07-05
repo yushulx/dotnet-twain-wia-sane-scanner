@@ -8,14 +8,17 @@
         
         <!-- Operation -->
         <VerticalStackLayout Margin="20" MaximumWidthRequest="400" WidthRequest="400" Spacing="20">
-            <StackLayout  Padding="10" BackgroundColor="#f0f0f0">
+            <StackLayout  Padding="10" BackgroundColor="#f0f0f0" Spacing="5">
                 <Label Text="Acquire Image" FontAttributes="Bold" Margin="0,0,0,10" />
                 <Button x:Name="GetDeviceBtn" Text="Get Devices" Clicked="OnGetDeviceClicked"/>
-                <Picker Title="Select Source" x:Name="DevicePicker" 
+
+                <Label Text="Select Source"/>
+                <Picker x:Name="DevicePicker" 
 ItemsSource="{Binding Items}">
                 </Picker>
-
-                <Picker Title="Pixel Type" x:Name="ColorPicker">
+                
+                <Label Text="Pixel Type"/>
+                <Picker x:Name="ColorPicker">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>B &amp; W</x:String>
@@ -25,7 +28,8 @@ ItemsSource="{Binding Items}">
                     </Picker.ItemsSource>
                 </Picker>
 
-                <Picker Title="Resolution" x:Name="ResolutionPicker">
+                <Label Text="Resolution"/>
+                <Picker x:Name="ResolutionPicker">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:Int32}">
                             <x:Int32>100</x:Int32>
