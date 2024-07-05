@@ -1,6 +1,8 @@
 # .NET Document Scanner for TWAIN, WIA, SANE, ICA, and eSCL
 The package provides methods for calling [Dynamsoft Service REST APIs](https://www.dynamsoft.com/blog/announcement/dynamsoft-service-restful-api/). This allows developers to build .NET applications for digitizing documents from **TWAIN (32-bit/64-bit)**, **WIA**, **SANE**, **ICA** and **eSCL** scanners.
 
+https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/1046f5f4-2009-4905-95b5-c750195df715
+
 ## Prerequisites
 1. Install Dynamsoft Service.
     - Windows: [Dynamsoft-Service-Setup.msi](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi)
