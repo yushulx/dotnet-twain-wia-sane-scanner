@@ -188,7 +188,6 @@ namespace MauiAppDocScan
 
             if (_streams.Count == 0) return;
 
-            // Save all streams to PDF
             var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
             if (status != PermissionStatus.Granted)
             {
