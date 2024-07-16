@@ -1,0 +1,184 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+@using MauiBlazor.Models
+
+<div id="loading-indicator" class="loading-indicator" style="@(isLoading ? "display: flex;" : "display: none;")">
+    <div class="spinner"></div>
+</div>
+
+<h2>Prerequisites</h2>
+<div class="row">
+    <div>
+        <label>
+            Get a License key from <a href="https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"
+                                      target="_blank">here</a>.
+        </label>
+        <input type="text" placeholder="@licenseKey" @bind="licenseKey">
+    </div>
+</div>
+
+<div class="container">
+    <div class="image-tool">
+        <h3>Acquire Image</h3>
+        <button class="btn btn-primary"  @onclick="GetDevices">Get Devices</button>
+        <label for="sourceSelect">Select Source</label>
+        <select id="@sourceSelectId" class="form-control"></select>
+
+        <label for="pixelTypeSelect">Pixel Type</label>
+        <select id="@pixelTypeSelectId" class="form-control">
+            <option>B &amp; W</option>
+            <option>Gray</option>
+            <option>Color</option>
+        </select>
+
+        <label for="resolutionSelect">Resolution</label>
+        <select id="@resolutionSelectId" class="form-control">
+            <option>100</option>
+            <option>150</option>
+            <option>200</option>
+            <option>300</option>
+        </select>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="@showUICheckId">
+            <label class="form-check-label" for="showUICheck">Show UI</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="@adfCheckId">
+            <label class="form-check-label" for="adfCheck">ADF</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="@duplexCheckId">
+            <label class="form-check-label" for="duplexCheck">Duplex</label>
+        </div>
+
+        <button class="btn btn-primary mt-3" @onclick="ScanNow">Scan Now</button>
+        <button class="btn btn-primary mt-2" @onclick="Save">Save</button>
+
+        <h3>Image Tools</h3>
+        <div class="image-tools">
+            <button @onclick="OnDeleteButtonClick" style="border:none; background:none; padding:0;">
+                <img src="images/delete.png" alt="Click Me" style="width: 64px; height: 64px;" />
+            </button>
+        </div>
+    </div>
+
+    <div class="image-display">
+        <div class="full-img">
+            <img id="scanner-image" src="@imageDataUrl" class="scanned-image">
+        </div>
+
+        <div class="row">
+            <div class="thumb-bar" id="thumb-bar">
+                <div class="thumb-box" id="thumb-box">
+                    @foreach (var url in imageUrls)
+                    {
+                        <img src="@url" @onclick="() => OnImageClick(url)" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private bool isLoading = false;
+    private string host = "http://127.0.0.1:18622";
+    private string licenseKey = "LICENSE-KEY";
+
+    private string jobId = "";
+    private string imageDataUrl { get; set; } = string.Empty;
+    private string selectedValue { get; set; } = string.Empty;
+
+    private List<string> imageUrls { get; set; } = new List<string>();
+    private static string IP = "127.0.0.1";
+
+    private string sourceSelectId = "sourceSelect";
+    private string pixelTypeSelectId = "pixelTypeSelect";
+    private string resolutionSelectId = "resolutionSelect";
+    private string showUICheckId = "showUICheck";
+    private string adfCheckId = "adfCheck";
+    private string duplexCheckId = "duplexCheck";
+
+    private void OnDeleteButtonClick()
+    {
+        imageUrls.Clear();
+        imageDataUrl = string.Empty;
+    }
+
+    public async Task GetDevices()
+    {
+        isLoading = true;
+
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<IJSObjectReference>("jsFunctions.getDevices", host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER, sourceSelectId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+        isLoading = false;
+        // StateHasChanged();
+    }
+
+    private async Task ScanNow()
+    {
+        var images = await JSRuntime.InvokeAsync<string[]>("jsFunctions.scanDocument", host, licenseKey, sourceSelectId, pixelTypeSelectId, resolutionSelectId, showUICheckId, adfCheckId, duplexCheckId);
+        if (images != null && images.Length > 0)
+        {
+            foreach (var image in images)
+            {
+                imageUrls.Insert(0, image);
+            }
+
+            imageDataUrl = imageUrls[0];
+        }
+
+    }
+
+    private async Task Save()
+    {
+        if (string.IsNullOrEmpty(imageDataUrl))
+        {
+            await JSRuntime.InvokeVoidAsync("jsFunctions.displayAlert", "Please scan an image first.");
+            return;
+        }
+
+        string base64String = await JSRuntime.InvokeAsync<string>("jsFunctions.fetchImageAsBase64", imageDataUrl);
+
+        if (!string.IsNullOrEmpty(base64String))
+        {
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+            string filePath = Path.Combine(FileSystem.AppDataDirectory, GenerateFilename());
+
+            try
+            {
+                await File.WriteAllBytesAsync(filePath, imageBytes);
+                await JSRuntime.InvokeVoidAsync("jsFunctions.displayAlert", $"Image saved to {filePath}");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("jsFunctions.displayAlert", $"Error saving image: {ex.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Failed to fetch the image.");
+        }
+    }
+
+    private void OnImageClick(string url)
+    {
+        imageDataUrl = url;
+    }
+
+    private string GenerateFilename()
+    {
+        DateTime now = DateTime.Now;
+        string timestamp = now.ToString("yyyyMMdd_HHmmss");
+        return $"image_{timestamp}.png";
+    }
+}   
