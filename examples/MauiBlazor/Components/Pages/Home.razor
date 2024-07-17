@@ -60,12 +60,18 @@
             <button @onclick="OnDeleteButtonClick" style="border:none; background:none; padding:0;">
                 <img src="images/delete.png" alt="Click Me" style="width: 64px; height: 64px;" />
             </button>
+            <button @onclick="OnRotateLeftButtonClick" style="border:none; background:none; padding:0;">
+                <img src="images/rotate_left.png" alt="Click Me" style="width: 64px; height: 64px;" />
+            </button>
+            <button @onclick="OnRotateRightButtonClick" style="border:none; background:none; padding:0;">
+                <img src="images/rotate_right.png" alt="Click Me" style="width: 64px; height: 64px;" />
+            </button>
         </div>
     </div>
 
     <div class="image-display">
         <div class="full-img">
-            <img id="scanner-image" src="@imageDataUrl" class="scanned-image">
+            <img id="@imageId" src="@imageDataUrl" class="scanned-image">
         </div>
 
         <div class="row">
@@ -100,11 +106,29 @@
     private string showUICheckId = "showUICheck";
     private string adfCheckId = "adfCheck";
     private string duplexCheckId = "duplexCheck";
+    private string imageId = "document-image";
+    private int currentIndex = 0;
 
     private void OnDeleteButtonClick()
     {
         imageUrls.Clear();
         imageDataUrl = string.Empty;
+    }
+
+    private async Task OnRotateLeftButtonClick()
+    {
+        if (string.IsNullOrEmpty(imageDataUrl)) return;
+
+        imageDataUrl = await JSRuntime.InvokeAsync<string>("jsFunctions.rotateImage", imageId, -90);
+        imageUrls[currentIndex] = imageDataUrl;
+    }
+
+    private async Task OnRotateRightButtonClick()
+    {
+        if (string.IsNullOrEmpty(imageDataUrl)) return;
+
+        imageDataUrl = await JSRuntime.InvokeAsync<string>("jsFunctions.rotateImage", imageId, 90);
+        imageUrls[currentIndex] = imageDataUrl;
     }
 
     public async Task GetDevices()
@@ -173,6 +197,7 @@
     private void OnImageClick(string url)
     {
         imageDataUrl = url;
+        currentIndex = imageUrls.IndexOf(url);
     }
 
     private string GenerateFilename()

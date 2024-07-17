@@ -123,8 +123,51 @@ window.jsFunctions = {
         alert(message);
     },
 
-    rotateImage: async function (angle) {
+    rotateImage: async function (imageId, angle) {
+        const image = document.getElementById(imageId);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        const imageWidth = image.naturalWidth;
+        const imageHeight = image.naturalHeight;
 
+        // Calculate the new rotation
+        let rotation = 0;
+        rotation = (rotation + angle) % 360;
+
+        // Adjust canvas size for rotation
+        if (rotation === 90 || rotation === -270 || rotation === 270) {
+            canvas.width = imageHeight;
+            canvas.height = imageWidth;
+        } else if (rotation === 180 || rotation === -180) {
+            canvas.width = imageWidth;
+            canvas.height = imageHeight;
+        } else if (rotation === 270 || rotation === -90) {
+            canvas.width = imageHeight;
+            canvas.height = imageWidth;
+        } else {
+            canvas.width = imageWidth;
+            canvas.height = imageHeight;
+        }
+
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the rotated image on the canvas
+        context.save();
+        if (rotation === 90 || rotation === -270) {
+            context.translate(canvas.width, 0);
+            context.rotate(90 * Math.PI / 180);
+        } else if (rotation === 180 || rotation === -180) {
+            context.translate(canvas.width, canvas.height);
+            context.rotate(180 * Math.PI / 180);
+        } else if (rotation === 270 || rotation === -90) {
+            context.translate(0, canvas.height);
+            context.rotate(270 * Math.PI / 180);
+        }
+        context.drawImage(image, 0, 0);
+        context.restore();
+
+        return canvas.toDataURL();
     }
 };
 
