@@ -1,6 +1,3 @@
-var data = [];
-
-
 window.jsFunctions = {
     getDevices: async function (host, scannerType, selectId) {
         let select = document.getElementById(selectId);
