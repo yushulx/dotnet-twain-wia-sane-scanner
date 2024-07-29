@@ -3,17 +3,13 @@ namespace MauiWebView
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-        private StringBuilder base64StringBuilder = new StringBuilder();
-        private bool isReceivingChunks = false;
-
         public MainPage()
         {
             InitializeComponent();
             LoadHtmlFile();
         }
 
-        private async void LoadHtmlFile()
+        private void LoadHtmlFile()
         {
             WebView.Source = "index.html";
             
