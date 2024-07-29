@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dynamsoft RESTful API Example</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div id="loading-indicator" class="loading-indicator">
+        <div class="spinner"></div>
+    </div>
+
+    <h2>Document Scanner</h2>
+    <div class="row">
+        <div>
+            <label>
+                Get a License key from <a href="https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"
+                                          target="_blank">here</a>.
+            </label>
+            <input type="text" placeholder="licenseKey" id="inputText" class="license-input">
+            <br />
+        </div>
+        
+    </div>
+
+    <div class="container">
+        <div class="image-tool">
+            <h3>Acquire Image</h3>
+            <button class="btn btn-primary" id="query-devices-button">Get Devices</button>
+
+            <div>
+                <label for="sourceSelect">Source: </label>
+                <select id="sources" class="form-control"></select>
+            </div>
+
+            <div>
+                <label for="pixelTypeSelect">Pixel Type: </label>
+                <select id="pixelTypeSelectId" class="form-control">
+                    <option>B &amp; W</option>
+                    <option>Gray</option>
+                    <option>Color</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="resolutionSelect">Resolution: </label>
+                <select id="resolutionSelectId" class="form-control">
+                    <option>100</option>
+                    <option>150</option>
+                    <option>200</option>
+                    <option>300</option>
+                </select>
+            </div>
+            
+
+            <div>
+                <input class="form-check-input" type="checkbox" id="showUICheckId">
+                <label class="form-check-label" for="showUICheck">Show UI</label>
+            </div>
+            <div>
+                <input class="form-check-input" type="checkbox" id="adfCheckId">
+                <label class="form-check-label" for="adfCheck">ADF</label>
+            </div>
+            <div>
+                <input class="form-check-input" type="checkbox" id="duplexCheckId">
+                <label class="form-check-label" for="duplexCheck">Duplex</label>
+            </div>
+
+            <button class="btn btn-primary mt-3" id="scan-button">Scan Now</button>
+            <button class="btn btn-primary mt-2" id="save-button">Save</button>
+
+            <h3>Image Tools</h3>
+            <div class="image-tools">
+                <button id="delete-button" style="border:none; background:none; padding:0;">
+                    <img src="images/delete.png" alt="Click Me" style="width: 64px; height: 64px;" />
+                </button>
+                <button id="rotate-left-button" style="border:none; background:none; padding:0;">
+                    <img src="images/rotate_left.png" alt="Click Me" style="width: 64px; height: 64px;" />
+                </button>
+                <button id="rotate-right-button" style="border:none; background:none; padding:0;">
+                    <img src="images/rotate_right.png" alt="Click Me" style="width: 64px; height: 64px;" />
+                </button>
+            </div>
+        </div>
+
+        <div class="image-display">
+            <div class="full-img">
+                <img id="document-image" src="images/default.png" class="scanned-image">
+            </div>
+
+            <div class="row">
+                <div class="thumb-bar" id="thumb-bar">
+                    <div class="thumb-box" id="thumb-box"> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
