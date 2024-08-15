@@ -27,7 +27,7 @@ namespace WinFormsDocScan
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            var scanners = await scannerController.GetDevices(host);
+            var scanners = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
             devices.Clear();
             Items.Clear();
             if (scanners.Count == 0)
@@ -64,7 +64,18 @@ namespace WinFormsDocScan
                     {"IfDuplexEnabled", false}
                 };
 
-            string jobId = await scannerController.ScanDocument(host, parameters);
+            var text = await scannerController.ScanDocument(host, parameters);
+            string jobId = "";
+            if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+            {
+                jobId = text[ScannerController.SCAN_SUCCESS];
+            }
+
+            string error = "";
+            if (text.ContainsKey(ScannerController.SCAN_ERROR))
+            {
+                error = text[ScannerController.SCAN_ERROR];
+            }
 
             if (!string.IsNullOrEmpty(jobId))
             {
@@ -83,6 +94,10 @@ namespace WinFormsDocScan
                     flowLayoutPanel1.Controls.Add(pictureBox);
                     flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
                 }
+            }
+            else if (!string.IsNullOrEmpty(error))
+            {
+                MessageBox.Show(error);
             }
         }
     }

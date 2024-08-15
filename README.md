@@ -122,7 +122,18 @@ Please select an operation:
                     {"IfDuplexEnabled", false}
                 };
 
-                string jobId = await scannerController.ScanDocument(host, parameters);
+                var text = await scannerController.ScanDocument(host, parameters);
+                string jobId = "";
+                if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+                {
+                    jobId = text[ScannerController.SCAN_SUCCESS];
+                }
+
+                string error = "";
+                if (text.ContainsKey(ScannerController.SCAN_ERROR))
+                {
+                    error = text[ScannerController.SCAN_ERROR];
+                }
 
                 if (!string.IsNullOrEmpty(jobId))
                 {
@@ -133,6 +144,10 @@ Please select an operation:
                     }
 
                     scannerController.DeleteJob(host, jobId);
+                }
+                else if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine($"Error: {error}");
                 }
             }
             else
@@ -159,12 +174,19 @@ Please select an operation:
 
 ## API
 - `public async Task<List<Dictionary<string, object>>> GetDevices(string host, int? scannerType = null)`: Get a list of available devices.
-- `public async Task<string> ScanDocument(string host, Dictionary<string, object> parameters)`: Scan a document.
-- `public async void DeleteJob(string host, string jobId)`: Delete a job.
+- `public async Task<HttpResponseMessage> GetDevicesHttpResponse(string host, int? scannerType = null)`: Return the HTTP response of getting devices.
+- `public async Task<Dictionary<string, string>> ScanDocument(string host, Dictionary<string, object> parameters)`: Initiate the scanner operation and return a dictionary containing either the job ID or an error message.
+- `public async Task<HttpResponseMessage> ScanDocumentHttpResponse(string host, Dictionary<string, object> parameters)`: Return the HTTP response of initiating the scanner operation.
+- `public async Task<HttpResponseMessage> DeleteJob(string host, string jobId)`: Return the HTTP response of deleting a job.
 - `public async Task<string> GetImageFile(string host, string jobId, string directory)`: Get an image file.
 - `public async Task<List<string>> GetImageFiles(string host, string jobId, string directory)`: Get a list of image files.
 - `public async Task<List<byte[]>> GetImageStreams(string host, string jobId)`: Get a list of image streams.
 - `public async Task<<byte[]> GetImageStream(string host, string jobId)`: Get an image stream.
+- `public async Task<HttpResponseMessage> GetImageStreamHttpResponse(string host, string jobId)` : Return the HTTP response of getting an image stream.
 
 
+## Build the NuGet Package
 
+```bash
+dotnet build --configuration Release
+```

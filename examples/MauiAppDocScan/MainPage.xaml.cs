@@ -73,7 +73,18 @@ namespace MauiAppDocScan
                     {"IfDuplexEnabled", duplexCheckbox.IsChecked}
                 };
 
-            string jobId = await scannerController.ScanDocument(host, parameters);
+            var text = await scannerController.ScanDocument(host, parameters);
+            string jobId = "";
+            if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+            {
+                jobId = text[ScannerController.SCAN_SUCCESS];
+            }
+
+            string error = "";
+            if (text.ContainsKey(ScannerController.SCAN_ERROR))
+            {
+                error = text[ScannerController.SCAN_ERROR];
+            }
 
             if (!string.IsNullOrEmpty(jobId))
             {
@@ -110,6 +121,10 @@ namespace MauiAppDocScan
                     DrawImage(_streams[_streams.Count - 1]);
                     await ImageScrollView.ScrollToAsync((Image)lastImage, ScrollToPosition.MakeVisible, true);
                 }
+            }
+            else if (!string.IsNullOrEmpty(error))
+            {
+                DisplayAlert("Error", error, "OK");
             }
         }
 
@@ -162,7 +177,7 @@ namespace MauiAppDocScan
             if (ImageContainer.Children.Count == 0) return;
 
             Image image = (Image)ImageContainer.Children[selectedIndex];
-            image.RotateTo(image.Rotation  - 90);
+            image.RotateTo(image.Rotation - 90);
 
             SKBitmap rotatedBitmap = RotateBitmap(bitmap, -90);
             bitmap.Dispose();
@@ -209,7 +224,7 @@ namespace MauiAppDocScan
 
                 DisplayAlert("Success", "Image saved to " + filePath, "OK");
             }
-            
+
         }
 
         public IImage ConvertToIImage(Microsoft.Maui.Controls.Image mauiImage)

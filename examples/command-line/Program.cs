@@ -85,7 +85,18 @@ Please select an operation:
                     {"IfDuplexEnabled", false}
                 };
 
-                string jobId = await scannerController.ScanDocument(host, parameters);
+                var text = await scannerController.ScanDocument(host, parameters);
+                string jobId = "";
+                if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+                {
+                    jobId = text[ScannerController.SCAN_SUCCESS];
+                }
+
+                string error = "";
+                if (text.ContainsKey(ScannerController.SCAN_ERROR))
+                {
+                    error = text[ScannerController.SCAN_ERROR];
+                }
 
                 if (!string.IsNullOrEmpty(jobId))
                 {
@@ -96,6 +107,10 @@ Please select an operation:
                     }
 
                     scannerController.DeleteJob(host, jobId);
+                }
+                else if (!string.IsNullOrEmpty(error))
+                {
+                    Console.WriteLine($"Error: {error}");
                 }
             }
             else

@@ -11,6 +11,9 @@ using System.IO;
 /// </summary>
 public class ScannerController
 {
+    public static string SCAN_SUCCESS = "success";
+    public static string SCAN_ERROR = "error";
+
     private HttpClient _httpClient = new HttpClient();
 
     /// <summary>
@@ -22,15 +25,10 @@ public class ScannerController
     public async Task<List<Dictionary<string, object>>> GetDevices(string host, int? scannerType = null)
     {
         List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
-        string url = $"{host}/DWTAPI/Scanners";
-        if (scannerType.HasValue)
-        {
-            url += $"?type={scannerType.Value}";
-        }
 
         try
         {
-            var response = await _httpClient.GetAsync(url);
+            var response = await GetDevicesHttpResponse(host, scannerType);
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
@@ -49,51 +47,104 @@ public class ScannerController
     }
 
     /// <summary>
+    /// Get a list of available devices and return the HTTP response.
+    /// </summary>
+    /// <param name="host"></param>
+    /// <param name="scannerType"></param>
+    /// <returns>HTTP response</returns>
+    public async Task<HttpResponseMessage> GetDevicesHttpResponse(string host, int? scannerType = null)
+    {
+        string url = $"{host}/DWTAPI/Scanners";
+        if (scannerType.HasValue)
+        {
+            url += $"?type={scannerType.Value}";
+        }
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Scan a document.
     /// </summary>
     /// <param name="host">The URL of the Dynamsoft Service API.</param>
     /// <param name="parameters">The parameters for the scan.</param>
-    /// <returns>The ID of the job.</returns>
-    public async Task<string> ScanDocument(string host, Dictionary<string, object> parameters)
+    /// <returns>A dictionary containing the job ID or an error message.</returns>
+    public async Task<Dictionary<string, string>> ScanDocument(string host, Dictionary<string, object> parameters)
     {
-        string url = $"{host}/DWTAPI/ScanJobs";
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+
         try
         {
-            var json = JsonSerializer.Serialize(parameters);
-            var response = await _httpClient.PostAsync(url, new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            var response = await ScanDocumentHttpResponse(host, parameters);
+            var text = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+
+                dict.Add(SCAN_SUCCESS, text);
+            }
+            else
+            {
+                dict.Add(SCAN_ERROR, text);
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            dict.Add(SCAN_ERROR, ex.ToString());
         }
 
-        return "";
+        return dict;
     }
 
     /// <summary>
-    /// Delete a job.
+    /// Scan a document and return the HTTP response.
+    /// </summary>
+    /// <param name="host"></param>
+    /// <param name="parameters"></param>
+    /// <returns>HTTP response</returns>
+    public async Task<HttpResponseMessage> ScanDocumentHttpResponse(string host, Dictionary<string, object> parameters)
+    {
+        string url = $"{host}/DWTAPI/ScanJobs";
+        var json = JsonSerializer.Serialize(parameters);
+        try
+        {
+            var response = await _httpClient.PostAsync(url, new StringContent(json, System.Text.Encoding.UTF8, "application/json"));
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Delete a job and return the HTTP response.
     /// </summary>
     /// <param name="host">The URL of the Dynamsoft Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
-    public async void DeleteJob(string host, string jobId)
+    /// /// <returns>HTTP response</returns>
+    public async Task<HttpResponseMessage> DeleteJob(string host, string jobId)
     {
-        if (string.IsNullOrEmpty(jobId))
-        {
-            return;
-        }
         string url = $"{host}/DWTAPI/ScanJobs/{jobId}";
 
         try
         {
             var response = await _httpClient.DeleteAsync(url);
+            return response;
         }
-        catch (Exception ex)
+        catch (HttpRequestException ex)
         {
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine($"Request error: {ex.Message}");
+            throw;
         }
     }
 
@@ -106,10 +157,9 @@ public class ScannerController
     /// <returns>The image file path.</returns>
     public async Task<string> GetImageFile(string host, string jobId, string directory)
     {
-        string url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
         try
         {
-            var response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            var response = await GetImageStreamHttpResponse(host, jobId);
             if (response.IsSuccessStatusCode)
             {
                 string timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
@@ -192,11 +242,9 @@ public class ScannerController
     /// <returns>An image stream.</returns>
     public async Task<byte[]> GetImageStream(string host, string jobId)
     {
-        var url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
-
         try
         {
-            var response = await _httpClient.GetAsync(url);
+            var response = await GetImageStreamHttpResponse(host, jobId);
 
             if (response.IsSuccessStatusCode)
             {
@@ -214,5 +262,28 @@ public class ScannerController
         }
 
         return Array.Empty<byte>();
+    }
+
+    /// <summary>
+    /// Get an image stream and return the HTTP response.
+    /// </summary>
+    /// <param name="host"></param>
+    /// <param name="jobId"></param>
+    /// <returns>HTTP response</returns>
+    public async Task<HttpResponseMessage> GetImageStreamHttpResponse(string host, string jobId)
+    {
+        var url = $"{host}/DWTAPI/ScanJobs/{jobId}/NextDocument";
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+            throw;
+        }
     }
 }
