@@ -1,0 +1,14 @@
+﻿<Project Sdk="WixToolset.Sdk/4.0.3">
+  <PropertyGroup>
+    <OutputType>Bundle</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="msi\DynamsoftServiceSetup.msi" />
+  </ItemGroup>
+</Project>

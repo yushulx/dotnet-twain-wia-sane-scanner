@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.1.0" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <Reference Include="Twain.Wia.Sane.Scanner">
+      <HintPath>..\..\Twain.Wia.Sane.Scanner\bin\Debug\net7.0\Twain.Wia.Sane.Scanner.dll</HintPath>
+    </Reference>
+  </ItemGroup>-->
+
+</Project>

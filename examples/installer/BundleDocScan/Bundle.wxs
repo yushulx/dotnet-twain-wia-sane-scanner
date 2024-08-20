@@ -1,0 +1,16 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
+  <Bundle Name="BundleDocScan" Manufacturer="TODO Manufacturer" Version="1.0.0.0" UpgradeCode="8515efd9-92c0-4232-bd0f-a572a0ccbce5">
+    <BootstrapperApplication>
+      <bal:WixStandardBootstrapperApplication 
+		  LicenseUrl="https://www.dynamsoft.com/company/license-agreement/" 
+		  Theme="hyperlinkLicense" 
+		  LogoFile="logo.png"/>
+    </BootstrapperApplication>
+
+    <Chain>
+		<MsiPackage SourceFile="..\PackageDocScan\bin\x64\Release\en-US\PackageDocScan.msi" />
+		<MsiPackage SourceFile="msi\DynamsoftServiceSetup.msi" />
+    </Chain>
+
+  </Bundle>
+</Wix>

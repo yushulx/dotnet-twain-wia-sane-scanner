@@ -1,0 +1,24 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+  xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+  <Fragment>
+    <netfx:DotNetCompatibilityCheck
+      Property="DOTNETRUNTIMECHECK"
+      RollForward="major"
+      RuntimeType="desktop"
+      Version="6.0.0"
+      Platform="x64"
+    />
+    <ComponentGroup Id="ExampleComponents" Directory="INSTALLFOLDER">
+      <Component Guid="45a99fdb-75f7-4163-9ef8-f022375074af">
+        <File Source="..\WinFormsDocScan\bin\Release\net7.0-windows\WinFormsDocScan.exe"
+          KeyPath="yes" />
+        <File Source="..\WinFormsDocScan\bin\Release\net7.0-windows\Twain.Wia.Sane.Scanner.dll" />
+        <File Source="..\WinFormsDocScan\bin\Release\net7.0-windows\WinFormsDocScan.deps.json" />
+        <File Source="..\WinFormsDocScan\bin\Release\net7.0-windows\WinFormsDocScan.dll" />
+        <File Source="..\WinFormsDocScan\bin\Release\net7.0-windows\WinFormsDocScan.pdb" />
+        <File
+          Source="..\WinFormsDocScan\bin\Release\net7.0-windows\WinFormsDocScan.runtimeconfig.json" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
