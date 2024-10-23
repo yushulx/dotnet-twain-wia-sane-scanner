@@ -17,7 +17,7 @@
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.mauiappdocscan</ApplicationId>
-		<ApplicationIdGuid>2b7ef604-6fac-41a9-bc7e-9de1a40155˜39</ApplicationIdGuid>
+		<ApplicationIdGuid>2b7ef604-6fac-41a9-bc7e-9de1a4015539</ApplicationIdGuid>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -66,12 +66,12 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.8" />
-		<!--<PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.1.0" />-->
+		<PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.2.0" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!--<ItemGroup>
 	  <ProjectReference Include="..\..\Twain.Wia.Sane.Scanner\Twain.Wia.Sane.Scanner.csproj" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<!--<ItemGroup>
 	  <Reference Include="Twain.Wia.Sane.Scanner">
