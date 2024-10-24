@@ -4,7 +4,7 @@ using Twain.Wia.Sane.Scanner;
 
 public class Program
 {
-    private static string licenseKey = "LICENSE-KEY";
+    private static string licenseKey = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==";
     private static ScannerController scannerController = new ScannerController();
     private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
     private static string host = "http://127.0.0.1:18622";
