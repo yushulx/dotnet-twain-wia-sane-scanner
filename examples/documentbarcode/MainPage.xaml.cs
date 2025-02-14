@@ -178,14 +178,16 @@ public partial class MainPage : ContentPage
 			if (barcodesResult != null)
 			{
 				BarcodeResultItem[] items = barcodesResult.GetItems();
+				BarcodeResultContent.Text += "Total barcode(s) found: " + items.Length + Environment.NewLine + Environment.NewLine;
+				int index = 1;
 				foreach (BarcodeResultItem barcodeItem in items)
 				{
-					BarcodeResultContent.Text += "Result " + (Array.IndexOf(items, barcodeItem) + 1) + Environment.NewLine;
+					BarcodeResultContent.Text += "Result " + index + Environment.NewLine;
 					BarcodeResultContent.Text += "Barcode Format: " + barcodeItem.GetFormatString() + Environment.NewLine;
-					BarcodeResultContent.Text += "Barcode Text: " + barcodeItem.GetText() + Environment.NewLine;
+					BarcodeResultContent.Text += "Barcode Text: " + barcodeItem.GetText() + Environment.NewLine + Environment.NewLine;
+					index += 1;
 				}
 
-				BarcodeResultContent.Text += "Total barcode(s) found: " + items.Length + Environment.NewLine + Environment.NewLine;
 			}
 		}
 	}
