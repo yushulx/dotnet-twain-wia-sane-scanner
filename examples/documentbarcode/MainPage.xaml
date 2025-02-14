@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="documentbarcode.MainPage">
+
+    <HorizontalStackLayout HorizontalOptions="FillAndExpand"
+                           VerticalOptions="FillAndExpand">
+
+        <VerticalStackLayout Margin="20"
+                             MaximumWidthRequest="400"
+                             WidthRequest="400"
+                             Spacing="20">
+            <StackLayout  Padding="10"
+                          BackgroundColor="#f0f0f0"
+                          Spacing="5">
+
+                <Picker x:Name="DevicePicker"
+                        Title="Select Source"
+                        ItemsSource="{Binding Items}">
+                </Picker>
+
+
+                <Picker x:Name="ColorPicker"
+                        Title="Select Pixel Type">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>B &amp; W</x:String>
+                            <x:String>Gray</x:String>
+                            <x:String>Color</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <Picker x:Name="ResolutionPicker"
+                        Title="Select Resolution">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:Int32}">
+                            <x:Int32>100</x:Int32>
+                            <x:Int32>150</x:Int32>
+                            <x:Int32>200</x:Int32>
+                            <x:Int32>300</x:Int32>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="showUICheckbox"/>
+                    <Label Text="Show UI"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="adfCheckbox"/>
+                    <Label Text="ADF"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+                <StackLayout Orientation="Horizontal">
+                    <CheckBox x:Name="duplexCheckbox"/>
+                    <Label Text="Duplex"
+                           VerticalOptions="Center"/>
+                </StackLayout>
+
+                <!-- Buttons -->
+                <Grid RowDefinitions="*, *"
+                      ColumnDefinitions="*, *"
+                      Padding="10">
+                    <Button Text="Scan Document"
+                            Clicked="OnLoadImageClicked"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Margin="10"/>
+                    <Button Text="Read Barcode"
+                            Clicked="OnScanBarcodeClicked"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Margin="10"/>
+
+                    <Button Text="Save Current Image"
+                            Clicked="OnSaveClicked"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Margin="10"/>
+                    <Button Text="Delete All"
+                            Clicked="OnDeleteAllClicked"
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Margin="10"/>
+                </Grid>
+
+
+                <Label x:Name="BarcodeResultsLabel"
+                       Text="Barcode Results"
+                       TextColor="blue"/>
+
+                <Editor x:Name="BarcodeResultContent"
+                        HeightRequest="300"
+                        WidthRequest="360"/>
+
+            </StackLayout>
+
+
+        </VerticalStackLayout>
+
+        <ScrollView x:Name="ImageScrollView"
+                    WidthRequest="800"
+                    HeightRequest="800">
+            <VerticalStackLayout x:Name="ImageContainer"/>
+        </ScrollView>
+
+
+        <Image x:Name="LargeImage"
+               Aspect="AspectFit"
+               MaximumWidthRequest="600"/>
+    </HorizontalStackLayout>
+</ContentPage>
