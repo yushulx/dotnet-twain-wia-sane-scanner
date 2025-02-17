@@ -2,6 +2,8 @@
 
 This project demonstrates how to use the [Twain.Wia.Sane.Scanner](https://www.nuget.org/packages/Twain.Wia.Sane.Scanner/) and [Dynamsoft.DotNet.BarcodeReader.Bundle](https://www.nuget.org/packages/Dynamsoft.DotNet.BarcodeReader.Bundle) packages to scan documents and read barcodes from them in a .NET MAUI application.
 
+https://github.com/user-attachments/assets/b104409e-bae3-4d55-9ca9-1e37ef078a7c
+
 ## Features
 
 - Scan documents using TWAIN, WIA, SANE, and ESCL protocols.
