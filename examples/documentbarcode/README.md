@@ -17,7 +17,7 @@ This project demonstrates how to use the [Twain.Wia.Sane.Scanner](https://www.nu
 1. Open the project in Visual Studio or Visual Studio Code.
 2. Set the license key in `MainPage.xaml.cs`:
     ```csharp
-    int errorCode = LicenseManager.InitLicense("LICENSE-KEY");
+    private static string licenseKey = "LICENSE-KEY";
     ```
 2. Build and run the project.
     
