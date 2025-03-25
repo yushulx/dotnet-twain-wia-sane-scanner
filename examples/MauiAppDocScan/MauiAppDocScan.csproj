@@ -66,12 +66,12 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="2.88.8" />
-		<PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.2.0" />
+		<!--<PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.2.0" />-->
 	</ItemGroup>
 
-	<!--<ItemGroup>
+	<ItemGroup>
 	  <ProjectReference Include="..\..\Twain.Wia.Sane.Scanner\Twain.Wia.Sane.Scanner.csproj" />
-	</ItemGroup>-->
+	</ItemGroup>
 
 	<!--<ItemGroup>
 	  <Reference Include="Twain.Wia.Sane.Scanner">
