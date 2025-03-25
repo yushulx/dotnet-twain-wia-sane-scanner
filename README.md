@@ -1,10 +1,10 @@
 # .NET Document Scanner for TWAIN, WIA, SANE, ICA, and eSCL
-The package provides methods for calling [Dynamsoft Service REST APIs](https://www.dynamsoft.com/blog/announcement/dynamsoft-service-restful-api/). This allows developers to build .NET applications for digitizing documents from **TWAIN (32-bit/64-bit)**, **WIA**, **SANE**, **ICA** and **eSCL** scanners.
+The package provides methods for calling [Dynamic Web TWAIN Service REST APIs](https://www.dynamsoft.com/blog/announcement/dynamsoft-service-restful-api/). This allows developers to build .NET applications for digitizing documents from **TWAIN (32-bit/64-bit)**, **WIA**, **SANE**, **ICA** and **eSCL** scanners.
 
 https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/1046f5f4-2009-4905-95b5-c750195df715
 
 ## Prerequisites
-1. Install Dynamsoft Service.
+1. Install Dynamic Web TWAIN Service.
     - Windows: [Dynamsoft-Service-Setup.msi](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi)
     - macOS: [Dynamsoft-Service-Setup.pkg](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.pkg)
     - Linux: 
@@ -15,7 +15,7 @@ https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/1046f5f4
         
 2. Request a [free trial license](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt).
 
-## Dynamsoft Service REST API
+## Dynamic Web TWAIN Service REST API
 By default, the REST API's host address is set to `http://127.0.0.1:18622`. 
 
 | Method | Endpoint        | Description                   | Parameters                         | Response                      |

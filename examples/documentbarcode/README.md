@@ -11,7 +11,7 @@ https://github.com/user-attachments/assets/b104409e-bae3-4d55-9ca9-1e37ef078a7c
 - Support for multiple barcode formats.
 
 ## Pre-requisites
-- Install [Dynamsoft service for Windows](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi).
+- Install [Dynamic Web TWAIN Service for Windows](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi).
 - Connect Your PC to a TWAIN, WIA, or SANE compatible scanner.
 - Obtain a [Free trial license key](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform) for Dynamsoft Barcode Reader.
 

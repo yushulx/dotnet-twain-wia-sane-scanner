@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.IO;
 
 /// <summary>
-/// A class that provides methods to interact with Dynamsoft Service API.
+/// A class that provides methods to interact with Dynamic Web TWAIN Service API.
 /// </summary>
 public class ScannerController
 {
@@ -19,7 +19,7 @@ public class ScannerController
     /// <summary>
     /// Get a list of available devices.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="scannerType">The type of scanner. Defaults to null.</param>
     /// <returns>A list of available devices.</returns>
     public async Task<List<Dictionary<string, object>>> GetDevices(string host, int? scannerType = null)
@@ -75,7 +75,7 @@ public class ScannerController
     /// <summary>
     /// Scan a document.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="parameters">The parameters for the scan.</param>
     /// <returns>A dictionary containing the job ID or an error message.</returns>
     public async Task<Dictionary<string, string>> ScanDocument(string host, Dictionary<string, object> parameters)
@@ -129,7 +129,7 @@ public class ScannerController
     /// <summary>
     /// Delete a job and return the HTTP response.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// /// <returns>HTTP response</returns>
     public async Task<HttpResponseMessage> DeleteJob(string host, string jobId)
@@ -151,7 +151,7 @@ public class ScannerController
     /// <summary>
     /// Get an image file.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// <param name="directory">The directory to save the image file.</param>
     /// <returns>The image file path.</returns>
@@ -184,7 +184,7 @@ public class ScannerController
     /// <summary>
     /// Get a list of image files.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// <param name="directory">The directory to save the image files.</param>
     /// <returns>A list of image file paths.</returns>
@@ -210,7 +210,7 @@ public class ScannerController
     /// <summary>
     /// Get a list of image streams.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// <returns>A list of image streams.</returns>
     public async Task<List<byte[]>> GetImageStreams(string host, string jobId)
@@ -237,7 +237,7 @@ public class ScannerController
     /// <summary>
     /// Get an image stream.
     /// </summary>
-    /// <param name="host">The URL of the Dynamsoft Service API.</param>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
     /// <returns>An image stream.</returns>
     public async Task<byte[]> GetImageStream(string host, string jobId)

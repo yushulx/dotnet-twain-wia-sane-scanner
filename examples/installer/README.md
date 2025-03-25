@@ -1,5 +1,5 @@
 # Windows Installer for .NET TWAIN Document Scanner
-The project demonstrates how to use [WiX Toolset](https://wixtoolset.org/) to create a Windows Installer for a .NET TWAIN document scanner application and Dynamsoft Service. 
+The project demonstrates how to use [WiX Toolset](https://wixtoolset.org/) to create a Windows Installer for a .NET TWAIN document scanner application and Dynamic Web TWAIN Service. 
 
 ## How to Build the Installer
 1. Build the `WinFormsDocScan` project to generate the document scanner application. You need to request a [30-day FREE trial license](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt) and update the license key in the `Form1.cs` file.
@@ -20,7 +20,7 @@ The project demonstrates how to use [WiX Toolset](https://wixtoolset.org/) to cr
 
     ![docscan-msi-installer](https://github.com/yushulx/dotnet-twain-scanner-installer/assets/2202306/111d7d06-3142-4caf-a3c5-ae97fd995ad8)
 
-3. Build the `BundleDocScan` project to generate a bundle installer for the document scanner application and Dynamsoft Service. You need to modify the file paths in the `Bundle.wxs` file.
+3. Build the `BundleDocScan` project to generate a bundle installer for the document scanner application and Dynamic Web TWAIN Service. You need to modify the file paths in the `Bundle.wxs` file.
 
     ```xml
     <MsiPackage SourceFile="..\PackageDocScan\bin\x64\Release\en-US\PackageDocScan.msi" />
