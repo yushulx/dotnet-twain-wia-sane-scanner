@@ -64,7 +64,7 @@ namespace WinFormsDocScan
                     {"IfDuplexEnabled", false}
                 };
 
-            var text = await scannerController.ScanDocument(host, parameters);
+            var text = await scannerController.CreateJob(host, parameters);
             string jobId = "";
             if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
             {

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Diagnostics;
+using System.Text.Json;
 using Twain.Wia.Sane.Scanner;
 
 public class Program
@@ -17,6 +17,8 @@ Please select an operation:
 
     public static async Task Main()
     {
+        var info = await scannerController.GetServerInfo(host);
+        Console.WriteLine($"Server info: {info["version"]}");
         await AskQuestion();
     }
 
@@ -73,7 +75,8 @@ Please select an operation:
                 var parameters = new Dictionary<string, object>
                 {
                     {"license", licenseKey},
-                    {"device", devices[index]["device"]}
+                    {"device", devices[index]["device"]},
+                    {"autoRun", true}
                 };
 
                 parameters["config"] = new Dictionary<string, object>
@@ -85,33 +88,38 @@ Please select an operation:
                     {"IfDuplexEnabled", false}
                 };
 
-                var text = await scannerController.ScanDocument(host, parameters);
-                string jobId = "";
-                if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
-                {
-                    jobId = text[ScannerController.SCAN_SUCCESS];
-                }
+                var job = await scannerController.CreateJob(host, parameters);
 
                 string error = "";
-                if (text.ContainsKey(ScannerController.SCAN_ERROR))
+                if (job.ContainsKey(ScannerController.SCAN_ERROR))
                 {
-                    error = text[ScannerController.SCAN_ERROR];
+                    error = (string)job[ScannerController.SCAN_ERROR];
+                    Debug.WriteLine($"Error: {error}");
+                    continue;
                 }
 
-                if (!string.IsNullOrEmpty(jobId))
-                {
-                    var images = await scannerController.GetImageFiles(host, jobId, "./");
-                    for (int i = 0; i < images.Count; i++)
-                    {
-                        Console.WriteLine($"Image {i}: {images[i]}");
-                    }
+                string jobId = "";
+                JsonElement jobUidElement = (JsonElement)job["jobuid"];
+                jobId = jobUidElement.GetString();
 
-                    scannerController.DeleteJob(host, jobId);
-                }
-                else if (!string.IsNullOrEmpty(error))
+                //var checkJob = await scannerController.CheckJob(host, jobId);
+
+                //var caps = await scannerController.GetScannerCapabilities(host, jobId);
+
+                //var status = new Dictionary<string, object>() {
+                //    { "status", JobStatus.RUNNING}    
+                //};
+                //var updateJob = await scannerController.UpdateJob(host, jobId, status);
+
+                var doc = await scannerController.CreateDocument(host, new Dictionary<string, object>());
+
+                var images = await scannerController.GetImageFiles(host, jobId, "./");
+                for (int i = 0; i < images.Count; i++)
                 {
-                    Console.WriteLine($"Error: {error}");
+                    Console.WriteLine($"Image {i}: {images[i]}");
                 }
+
+                await scannerController.DeleteJob(host, jobId);
             }
             else
             {

@@ -84,7 +84,7 @@ public partial class MainPage : ContentPage
 					{"IfDuplexEnabled", duplexCheckbox.IsChecked},
 				};
 
-		var data = await scannerController.ScanDocument(host, parameters);
+		var data = await scannerController.CreateJob(host, parameters);
 		string jobId = "";
 		if (data.ContainsKey(ScannerController.SCAN_SUCCESS))
 		{
