@@ -90,7 +90,7 @@ Please select an operation:
                     {"IfShowUI", false},
                     {"PixelType", 2},
                     {"Resolution", 200},
-                    {"IfFeederEnabled", false},
+                    {"IfFeederEnabled", true},
                     {"IfDuplexEnabled", false}
                 };
 
@@ -148,9 +148,33 @@ Please select an operation:
                 for (int i = 0; i < images.Count; i++)
                 {
                     Console.WriteLine($"Image {i}: {images[i]}");
+
+                    var imageInfo = await scannerController.GetImageInfo(host, jobId);
+                    //Console.WriteLine($"Image info: {imageInfo}");
+
+                    var image = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo);
+
+                    parameters = new Dictionary<string, object>
+                    {
+                        {"password", ""},
+                        {"source", image["url"]}
+                    };
+
+                    var insertPage = await scannerController.InsertPage(host, docId, parameters);
+                    //Console.WriteLine($"Insert page: {insertPage}");
+
+                    //var pageList = JsonConvert.DeserializeObject<Dictionary<string, object>>(insertPage);
+                    //var pages = (JArray)pageList["pages"];
+                    //JObject firstPage = (JObject)pages[0];
+                    //string uid = firstPage["uid"]?.ToString();
+                    //var deletePage = await scannerController.DeletePage(host, docId, uid);
                 }
 
-                var info = scannerController.GetDocumentInfo(host, docId);
+                //var info = await scannerController.GetDocumentInfo(host, docId);
+                //Console.WriteLine($"Document info: {info}");
+
+                var docFile = await scannerController.GetDocumentFile(host, docId, "./");
+                Console.WriteLine($"Document file: {docFile}");
 
                 await scannerController.DeleteDocument(host, docId);
                 await scannerController.DeleteJob(host, jobId);
