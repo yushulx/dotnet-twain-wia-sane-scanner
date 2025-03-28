@@ -3,12 +3,12 @@ using Dynamsoft.CVR;
 using Dynamsoft.DBR;
 using Dynamsoft.License;
 using Twain.Wia.Sane.Scanner;
-
+using Newtonsoft.Json;
 namespace documentbarcode;
 
 public partial class MainPage : ContentPage
 {
-	private static string licenseKey = "LICENSE-KEY";
+	private static string licenseKey = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ==";
 	private static ScannerController scannerController = new ScannerController();
 	private static List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
 	private static string host = "http://127.0.0.1:18622";
@@ -46,8 +46,19 @@ public partial class MainPage : ContentPage
 	private async void InitializeDevices()
 	{
 
-		var scanners = await scannerController.GetDevices(host, ScannerType.TWAINX64SCANNER | ScannerType.ESCLSCANNER);
-		if (scanners.Count == 0)
+        var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINX64SCANNER | ScannerType.ESCLSCANNER);
+        devices.Clear();
+        Items.Clear();
+        var scanners = new List<Dictionary<string, object>>();
+        try
+        {
+            scanners = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(scannerInfo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        if (scanners.Count == 0)
 		{
 			await DisplayAlert("Error", "No scanner found", "OK");
 			return;
@@ -84,20 +95,26 @@ public partial class MainPage : ContentPage
 					{"IfDuplexEnabled", duplexCheckbox.IsChecked},
 				};
 
-		var data = await scannerController.CreateJob(host, parameters);
-		string jobId = "";
-		if (data.ContainsKey(ScannerController.SCAN_SUCCESS))
-		{
-			jobId = data[ScannerController.SCAN_SUCCESS];
-		}
+        var jobInfo = await scannerController.CreateJob(host, parameters);
+        string jobId = "";
+        try
+        {
+            var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
+            jobId = (string)job["jobuid"];
 
-		string error = "";
-		if (data.ContainsKey(ScannerController.SCAN_ERROR))
-		{
-			error = data[ScannerController.SCAN_ERROR];
-		}
+            if (string.IsNullOrEmpty(jobId))
+            {
+                Console.WriteLine("Failed to create job.");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            return;
+        }
 
-		if (!string.IsNullOrEmpty(jobId))
+        if (!string.IsNullOrEmpty(jobId))
 		{
 			var images = await scannerController.GetImageStreams(host, jobId);
 			int start = _streams.Count;
@@ -124,10 +141,6 @@ public partial class MainPage : ContentPage
 
 			ScrollToLatestImage();
 			ShowLargeImage(_streams[_streams.Count - 1]);
-		}
-		else if (!string.IsNullOrEmpty(error))
-		{
-			await DisplayAlert("Error", error, "OK");
 		}
 	}
 
