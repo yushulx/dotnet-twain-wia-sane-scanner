@@ -3,7 +3,7 @@ window.jsFunctions = {
         let select = document.getElementById(selectId);
         select.innerHTML = '';
         try {
-            let url = host + '/DWTAPI/Scanners';
+            let url = host + '/api/device/scanners';
             if (scannerType != null || scannerType !== '') {
                 url += '?type=' + scannerType;
             }
@@ -69,7 +69,7 @@ window.jsFunctions = {
         
 
         // REST endpoint to create a scan job
-        let url = host + '/DWTAPI/ScanJobs?timeout=' + timeout;
+        let url = host + '/api/device/scanners/jobs';
 
         try {
             let response = await fetch(url, {
@@ -81,7 +81,8 @@ window.jsFunctions = {
             });
 
             if (response.ok) {
-                let jobId = await response.text();
+                let job = await response.json();
+                let jobId = job.jobuid;
                 let images = await getImages(host, jobId, 'images');
                 return images;
             }
@@ -170,7 +171,7 @@ window.jsFunctions = {
 
 async function getImages(host, jobId) {
     let images = [];
-    let url = host + '/DWTAPI/ScanJobs/' + jobId + '/NextDocument';
+    let url = host + '/api/device/scanners/jobs/' + jobId + '/next-page';
 
     while (true) {
         try {
@@ -198,7 +199,7 @@ async function getImages(host, jobId) {
 }
 
 async function deleteJob(host, jobId) {
-    let url = host + "/DWTAPI/ScanJobs/" + jobId;
+    let url = host + "/api/device/scanners/jobs/" + jobId;
     const response = await fetch(url, { "method": "DELETE", "mode": "cors", "credentials": "include" });
     if (response.status == 200) {
         console.log(`job ${jobId} deleted.`);
