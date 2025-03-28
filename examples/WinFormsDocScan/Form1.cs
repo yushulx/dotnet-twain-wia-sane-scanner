@@ -112,6 +112,7 @@ namespace WinFormsDocScan
                     flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
                 }
             }
+            await scannerController.DeleteJob(host, jobId);
         }
     }
 }

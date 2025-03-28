@@ -78,5 +78,7 @@
 	    <HintPath>..\..\Twain.Wia.Sane.Scanner\bin\Debug\net7.0\Twain.Wia.Sane.Scanner.dll</HintPath>
 	  </Reference>
 	</ItemGroup>-->
-
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 </Project>
