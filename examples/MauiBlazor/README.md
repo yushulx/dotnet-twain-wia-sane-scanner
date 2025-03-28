@@ -4,7 +4,7 @@ The project demonstrates how to utilize .NET MAUI Blazor and Dynamic Web TWAIN R
 https://github.com/user-attachments/assets/04b08665-e5a5-47fc-814b-d690c282e29f
 
 ## Usage
-1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt) and update the following code in the `Home.razor` file:
+1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform) and update the following code in the `Home.razor` file:
 
     ```cs
     private string licenseKey = "LICENSE-KEY";

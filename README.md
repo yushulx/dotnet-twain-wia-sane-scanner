@@ -26,7 +26,7 @@ https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/1046f5f4
 
 ### 🔑 Get a License
 
-Request a [free trial license](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt).
+Request a [free trial license](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform).
 
 ---
 

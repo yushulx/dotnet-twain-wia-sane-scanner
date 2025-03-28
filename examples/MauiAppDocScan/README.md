@@ -1,5 +1,5 @@
 ## Usage
-1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt) and update the following code in the `MainPage.xaml.cs` file:
+1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform) and update the following code in the `MainPage.xaml.cs` file:
 
     ```cs
     private static string licenseKey = "LICENSE-KEY";
