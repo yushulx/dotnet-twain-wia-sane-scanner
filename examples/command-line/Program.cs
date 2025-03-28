@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using Newtonsoft.Json;
 using Twain.Wia.Sane.Scanner;
 
 public class Program
@@ -18,7 +17,7 @@ Please select an operation:
     public static async Task Main()
     {
         var info = await scannerController.GetServerInfo(host);
-        Console.WriteLine($"Server info: {info["version"]}");
+        Console.WriteLine($"Server info: {info}");
         await AskQuestion();
     }
 
@@ -41,14 +40,21 @@ Please select an operation:
             }
             else if (answer == "1")
             {
-                var scanners = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
+                var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
                 devices.Clear();
-                for (int i = 0; i < scanners.Count; i++)
-                {
-                    var scanner = scanners[i];
-                    devices.Add(scanner);
-                    Console.WriteLine($"\nIndex: {i}, Name: {scanner["name"]}");
+
+                try { 
+                    var scanners = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(scannerInfo);
+                    for (int i = 0; i < scanners.Count; i++)
+                    {
+                        var scanner = scanners[i];
+                        devices.Add(scanner);
+                        Console.WriteLine($"\nIndex: {i}, Name: {scanner["name"]}");
+                    }
+                } catch (Exception ex) { 
+                   Console.WriteLine($"Error: {ex.Message}");
                 }
+                
             }
             else if (answer == "2")
             {
@@ -88,30 +94,55 @@ Please select an operation:
                     {"IfDuplexEnabled", false}
                 };
 
-                var job = await scannerController.CreateJob(host, parameters);
-
-                string error = "";
-                if (job.ContainsKey(ScannerController.SCAN_ERROR))
+                var jobInfo = await scannerController.CreateJob(host, parameters);
+                string jobId = "";
+                try
                 {
-                    error = (string)job[ScannerController.SCAN_ERROR];
-                    Debug.WriteLine($"Error: {error}");
+                    var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
+                    jobId = (string)job["jobuid"];
+
+                    if (string.IsNullOrEmpty(jobId))
+                    {
+                        Console.WriteLine("Failed to create job.");
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
                     continue;
                 }
 
-                string jobId = "";
-                JsonElement jobUidElement = (JsonElement)job["jobuid"];
-                jobId = jobUidElement.GetString();
-
                 //var checkJob = await scannerController.CheckJob(host, jobId);
+                //Console.WriteLine($"Check job: {checkJob}");
 
                 //var caps = await scannerController.GetScannerCapabilities(host, jobId);
+                //Console.WriteLine($"Capabilities: {caps}");
 
                 //var status = new Dictionary<string, object>() {
-                //    { "status", JobStatus.RUNNING}    
+                //    { "status", JobStatus.RUNNING}
                 //};
                 //var updateJob = await scannerController.UpdateJob(host, jobId, status);
+                //Console.WriteLine($"Update job: {updateJob}");
 
-                var doc = await scannerController.CreateDocument(host, new Dictionary<string, object>());
+                var docInfo = await scannerController.CreateDocument(host, new Dictionary<string, object>());
+                string docId = "";
+                try
+                {
+                    var doc = JsonConvert.DeserializeObject<Dictionary<string, object>>(docInfo);
+                    docId = (string)doc["uid"];
+
+                    if (string.IsNullOrEmpty(docId))
+                    {
+                        Console.WriteLine("Failed to create a document.");
+                        continue;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    continue;
+                }
 
                 var images = await scannerController.GetImageFiles(host, jobId, "./");
                 for (int i = 0; i < images.Count; i++)
@@ -119,6 +150,9 @@ Please select an operation:
                     Console.WriteLine($"Image {i}: {images[i]}");
                 }
 
+                var info = scannerController.GetDocumentInfo(host, docId);
+
+                await scannerController.DeleteDocument(host, docId);
                 await scannerController.DeleteJob(host, jobId);
             }
             else

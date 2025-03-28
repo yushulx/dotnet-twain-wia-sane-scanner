@@ -37,8 +37,6 @@ public static class ScannerType
 /// </summary>
 public class ScannerController
 {
-    public static string SCAN_ERROR = "error";
-
     private HttpClient _httpClient = new HttpClient();
 
     /// <summary>
@@ -47,32 +45,18 @@ public class ScannerController
     /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="scannerType">The type of scanner. Defaults to null.</param>
     /// <returns>A list of available devices.</returns>
-    public async Task<List<Dictionary<string, object>>> GetDevices(string host, int? scannerType = null)
+    public async Task<string> GetDevices(string host, int? scannerType = null)
     {
-        List<Dictionary<string, object>> devices = new List<Dictionary<string, object>>();
-
         try
         {
             var response = await GetDevicesHttpResponse(host, scannerType);
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(responseBody))
-                {
-                    devices = JsonSerializer.Deserialize<List<Dictionary<string, object>>>(responseBody) ?? new List<Dictionary<string, object>>();
-                }
-            }
-            else
-            {
-                Console.WriteLine("Get devices failed: " + response.StatusCode);
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
+            return ex.ToString();
         }
-
-        return devices;
     }
 
     /// <summary>
@@ -107,9 +91,8 @@ public class ScannerController
     /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="parameters">The parameters for the scan.</param>
     /// <returns>A dictionary containing the job ID or an error message.</returns>
-    public async Task<Dictionary<string, object>> CreateJob(string host, Dictionary<string, object> parameters)
+    public async Task<string> CreateJob(string host, Dictionary<string, object> parameters)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/device/scanners/jobs";
 
         try
@@ -129,22 +112,13 @@ public class ScannerController
             var response = await _httpClient.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
 
-            if (response.StatusCode == System.Net.HttpStatusCode.Created)
-            {
-                var data = JsonSerializer.Deserialize<Dictionary<string, object>>(responseText);
-                return data;
-            }
-            else
-            {
-                result[SCAN_ERROR] = responseText;
-            }
+            return responseText;
         }
         catch (Exception ex)
         {
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
 
-        return result;
     }
 
 
@@ -175,7 +149,7 @@ public class ScannerController
     /// </summary>
     /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="jobId">The ID of the job.</param>
-    /// /// <returns>HTTP response</returns>
+    /// <returns>HTTP response</returns>
     public async Task<HttpResponseMessage> DeleteJob(string host, string jobId)
     {
         string url = $"{host}/api/device/scanners/jobs/{jobId}";
@@ -331,36 +305,38 @@ public class ScannerController
         }
     }
 
-    public async Task<Dictionary<string, object>> CheckJob(string host, string jobId)
+    /// <summary>
+    /// Check the status of a job.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <returns>The job status.</returns>
+    public async Task<string> CheckJob(string host, string jobId)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/device/scanners/jobs/{jobId}";
 
         try
         {
             var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                result = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-            }
-            else
-            {
-                Console.WriteLine("Check job failed: " + response.StatusCode);
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Check job failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
-    public async Task<Dictionary<string, object>> UpdateJob(string host, string jobId, Dictionary<string, object> parameters)
+    /// <summary>
+    /// Update a job.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <param name="parameters">The parameters to update the job.</param>
+    /// <returns>The HTTP response.</returns>
+    public async Task<HttpResponseMessage> UpdateJob(string host, string jobId, Dictionary<string, object> parameters)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/device/scanners/jobs/{jobId}";
         var json = JsonSerializer.Serialize(parameters);
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -373,78 +349,59 @@ public class ScannerController
             };
 
             var response = await _httpClient.SendAsync(request);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(responseBody);
-            }
-            else
-            {
-                Console.WriteLine("Update job failed: " + response.StatusCode);
-                result[SCAN_ERROR] = response.StatusCode.ToString();
-            }
+            return response;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Update job failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            throw;
         }
-
-        return result;
     }
 
-    public async Task<List<Dictionary<string, object>>> GetScannerCapabilities(string host, string jobId)
+    /// <summary>
+    /// Get the capabilities of a scanner.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <returns>The scanner capabilities.</returns>
+    public async Task<string> GetScannerCapabilities(string host, string jobId)
     {
-        var result = new List<Dictionary<string, object>>();
         string url = $"{host}/api/device/scanners/jobs/{jobId}/scanner/capabilities";
 
         try
         {
             var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<Dictionary<string, object>>>(json);
-            }
-            else
-            {
-                Console.WriteLine("Scanner capabilities fetch failed: " + response.StatusCode);
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Scanner capabilities fetch failed: " + ex.Message);
+            return ex.Message;
         }
-
-        return result;
     }
 
-    public async Task<Dictionary<string, object>> GetImageInfo(string host, string jobId)
+    /// <summary>
+    /// Get the image info.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <returns>The image info.</returns>
+    public async Task<string> GetImageInfo(string host, string jobId)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/device/scanners/jobs/{jobId}/next-page-info";
 
         try
         {
             var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-            }
-            else
-            {
-                Console.WriteLine("Image info fetch failed: " + response.StatusCode);
-                result[SCAN_ERROR] = response.StatusCode.ToString();
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Image info fetch failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
     /// <summary>
@@ -453,9 +410,8 @@ public class ScannerController
     /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
     /// <param name="parameters">The parameters for the document.</param>
     /// <returns>A dictionary containing the document ID or an error message.</returns>
-    public async Task<Dictionary<string, object>> CreateDocument(string host, Dictionary<string, object> parameters)
+    public async Task<string> CreateDocument(string host, Dictionary<string, object> parameters)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/storage/documents";
         var json = JsonSerializer.Serialize(parameters);
         var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -463,70 +419,68 @@ public class ScannerController
         try
         {
             var response = await _httpClient.PostAsync(url, content);
-            var responseBody = await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == System.Net.HttpStatusCode.Created)
-            {
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(responseBody);
-            }
-            else
-            {
-                result[SCAN_ERROR] = responseBody;
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Document creation failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
-    public async Task<Dictionary<string, object>> GetDocumentInfo(string host, string docId)
+    /// <summary>
+    /// Get a document.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <returns>The document info.</returns>
+    public async Task<string> GetDocumentInfo(string host, string docId)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/storage/documents/{docId}";
 
         try
         {
             var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-            }
-            else
-            {
-                Console.WriteLine("Document info fetch failed: " + response.StatusCode);
-                result[SCAN_ERROR] = response.StatusCode.ToString();
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Document info fetch failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
-    public async Task<bool> DeleteDocument(string host, string docId)
+    /// <summary>
+    /// Delete a document.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <returns>The HTTP response.</returns>
+    public async Task<HttpResponseMessage> DeleteDocument(string host, string docId)
     {
         string url = $"{host}/api/storage/documents/{docId}";
 
         try
         {
             var response = await _httpClient.DeleteAsync(url);
-            return response.IsSuccessStatusCode;
+            return response;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Document deletion failed: " + ex.Message);
-            return false;
+            throw;
         }
     }
 
-
+    /// <summary>
+    /// Get a document file.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <param name="directory">The directory to save the document file.</param>
+    /// <returns>The document file path.</returns>
     public async Task<string> GetDocumentFile(string host, string docId, string directory)
     {
         string url = $"{host}/api/storage/documents/{docId}/content";
@@ -553,7 +507,12 @@ public class ScannerController
         return "";
     }
 
-
+    /// <summary>
+    /// Get a document stream.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <returns>The document stream.</returns>
     public async Task<byte[]> GetDocumentStream(string host, string docId)
     {
         string url = $"{host}/api/storage/documents/{docId}/content";
@@ -574,10 +533,15 @@ public class ScannerController
         return Array.Empty<byte>();
     }
 
-
-    public async Task<Dictionary<string, object>> InsertPage(string host, string docId, Dictionary<string, object> parameters)
+    /// <summary>
+    /// Insert a page into a document.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <param name="parameters">The parameters for the page insertion.</param>
+    /// <returns>The page ID or an error message.</returns>
+    public async Task<string> InsertPage(string host, string docId, Dictionary<string, object> parameters)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/storage/documents/{docId}/pages";
         var json = JsonSerializer.Serialize(parameters);
         var request = new HttpRequestMessage(HttpMethod.Post, url);
@@ -591,67 +555,59 @@ public class ScannerController
         try
         {
             var response = await _httpClient.SendAsync(request);
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(responseBody);
-            }
-            else
-            {
-                result[SCAN_ERROR] = await response.Content.ReadAsStringAsync();
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Page insertion failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
-    public async Task<bool> DeletePage(string host, string docId, string pageId)
+    /// <summary>
+    /// Delete a page from a document.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="docId">The ID of the document.</param>
+    /// <param name="pageId">The ID of the page.</param>
+    /// <returns>The HTTP response.</returns>
+    public async Task<HttpResponseMessage> DeletePage(string host, string docId, string pageId)
     {
         string url = $"{host}/api/storage/documents/{docId}/pages/{pageId}";
 
         try
         {
             var response = await _httpClient.DeleteAsync(url);
-            return response.IsSuccessStatusCode;
+            return response;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Page deletion failed: " + ex.Message);
-            return false;
+            throw;
         }
     }
 
-    public async Task<Dictionary<string, object>> GetServerInfo(string host)
+    /// <summary>
+    /// Get Dynamic Web TWAIN Service API server info.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <returns>The server info.</returns>
+    public async Task<string> GetServerInfo(string host)
     {
-        var result = new Dictionary<string, object>();
         string url = $"{host}/api/server/version";
 
         try
         {
             var response = await _httpClient.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Dictionary<string, object>>(json);
-            }
-            else
-            {
-                Console.WriteLine("Server info fetch failed: " + response.StatusCode);
-                result[SCAN_ERROR] = response.StatusCode.ToString();
-            }
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return responseContent;
         }
         catch (Exception ex)
         {
             Console.WriteLine("Server info fetch failed: " + ex.Message);
-            result[SCAN_ERROR] = ex.Message;
+            return ex.Message;
         }
-
-        return result;
     }
 
 }
