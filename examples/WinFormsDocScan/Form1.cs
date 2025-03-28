@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Twain.Wia.Sane.Scanner;
@@ -27,9 +28,19 @@ namespace WinFormsDocScan
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            var scanners = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
+            var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
             devices.Clear();
             Items.Clear();
+            var scanners = new List<Dictionary<string, object>>();
+            try
+            {
+                scanners = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(scannerInfo);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
             if (scanners.Count == 0)
             {
                 MessageBox.Show("No scanner found");
@@ -64,17 +75,23 @@ namespace WinFormsDocScan
                     {"IfDuplexEnabled", false}
                 };
 
-            var text = await scannerController.CreateJob(host, parameters);
+            var jobInfo = await scannerController.CreateJob(host, parameters);
             string jobId = "";
-            if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+            try
             {
-                jobId = text[ScannerController.SCAN_SUCCESS];
-            }
+                var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
+                jobId = (string)job["jobuid"];
 
-            string error = "";
-            if (text.ContainsKey(ScannerController.SCAN_ERROR))
+                if (string.IsNullOrEmpty(jobId))
+                {
+                    Console.WriteLine("Failed to create job.");
+                    return;
+                }
+            }
+            catch (Exception ex)
             {
-                error = text[ScannerController.SCAN_ERROR];
+                Console.WriteLine($"Error: {ex.Message}");
+                return;
             }
 
             if (!string.IsNullOrEmpty(jobId))
@@ -94,10 +111,6 @@ namespace WinFormsDocScan
                     flowLayoutPanel1.Controls.Add(pictureBox);
                     flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
                 }
-            }
-            else if (!string.IsNullOrEmpty(error))
-            {
-                MessageBox.Show(error);
             }
         }
     }

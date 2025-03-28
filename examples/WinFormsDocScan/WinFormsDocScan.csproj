@@ -16,4 +16,7 @@
     <ProjectReference Include="..\..\Twain.Wia.Sane.Scanner\Twain.Wia.Sane.Scanner.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
 </Project>
