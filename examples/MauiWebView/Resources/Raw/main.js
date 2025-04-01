@@ -218,7 +218,7 @@ async function getDevices(host, scannerType) {
     devices = [];
     // Device type: https://www.dynamsoft.com/web-twain/docs/info/api/Dynamsoft_Enum.html
     // http://local.dynamsoft.com:18622/DWTAPI/Scanners?type=64 for TWAIN only
-    let url = host + '/DWTAPI/Scanners'
+    let url = host + '/api/device/scanners'
     if (scannerType != null) {
         url += '?type=' + scannerType;
     }
@@ -238,7 +238,7 @@ async function getDevices(host, scannerType) {
 
 // Create a scan job by feeding one or multiple physical documents
 async function scanDocument(host, parameters, timeout = 30) {
-    let url = host + '/DWTAPI/ScanJobs?timeout=' + timeout;
+    let url = host + '/api/device/scanners/jobs';
 
     try {
         let response = await fetch(url, {
@@ -250,7 +250,8 @@ async function scanDocument(host, parameters, timeout = 30) {
         });
 
         if (response.ok) {
-            let jobId = await response.text();
+            let job = await response.json();
+            let jobId = job.jobuid;
             return jobId;
         }
         else {
@@ -266,7 +267,7 @@ async function scanDocument(host, parameters, timeout = 30) {
 async function deleteJob(host, jobId) {
     if (!jobId) return;
 
-    let url = host + '/DWTAPI/ScanJobs/' + jobId;
+    let url = host + '/api/device/scanners/jobs/' + jobId;
     console.log('Delete job: ' + url);
     axios({
         method: 'DELETE',
@@ -283,7 +284,7 @@ async function deleteJob(host, jobId) {
 // Get document image streams by job id
 async function getImages(host, jobId) {
     let images = [];
-    let url = host + '/DWTAPI/ScanJobs/' + jobId + '/NextDocument';
+    let url = host + '/api/device/scanners/jobs/' + jobId + '/next-page';
 
     while (true) {
         try {

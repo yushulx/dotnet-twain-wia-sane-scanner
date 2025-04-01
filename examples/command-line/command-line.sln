@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "command-line", "command-line.csproj", "{889BF9C4-D1F0-4FB5-8D05-F42B6256C319}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Twain.Wia.Sane.Scanner", "..\..\Twain.Wia.Sane.Scanner\Twain.Wia.Sane.Scanner.csproj", "{2CF743E5-1954-43AC-85CD-D71E9DF95D1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{889BF9C4-D1F0-4FB5-8D05-F42B6256C319}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{889BF9C4-D1F0-4FB5-8D05-F42B6256C319}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{889BF9C4-D1F0-4FB5-8D05-F42B6256C319}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CF743E5-1954-43AC-85CD-D71E9DF95D1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CF743E5-1954-43AC-85CD-D71E9DF95D1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CF743E5-1954-43AC-85CD-D71E9DF95D1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CF743E5-1954-43AC-85CD-D71E9DF95D1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

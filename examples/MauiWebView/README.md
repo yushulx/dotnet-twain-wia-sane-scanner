@@ -5,7 +5,7 @@ https://github.com/user-attachments/assets/dc0d50ce-a71a-4451-9616-01f6f3f2fc29
 
 
 ## Usage
-1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt).
+1. Obtain a [30-day trial license key](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform).
 
 2. Press `F5` to run the project in Visual Studio or Visual Studio Code.
 

@@ -6,7 +6,7 @@ using Microsoft.Maui.Graphics.Platform;
 
 using IImage = Microsoft.Maui.Graphics.IImage;
 using Microsoft.Maui.Controls;
-
+using Newtonsoft.Json;
 namespace MauiAppDocScan
 {
     public partial class MainPage : ContentPage
@@ -36,9 +36,19 @@ namespace MauiAppDocScan
         private async void OnGetDeviceClicked(object sender, EventArgs e)
         {
 
-            var scanners = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
+            var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
             devices.Clear();
             Items.Clear();
+            var scanners = new List<Dictionary<string, object>>();
+            try
+            {
+                scanners = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(scannerInfo);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+
             if (scanners.Count == 0)
             {
                 await DisplayAlert("Error", "No scanner found", "OK");
@@ -73,17 +83,23 @@ namespace MauiAppDocScan
                     {"IfDuplexEnabled", duplexCheckbox.IsChecked}
                 };
 
-            var text = await scannerController.ScanDocument(host, parameters);
+            var jobInfo = await scannerController.CreateJob(host, parameters);
             string jobId = "";
-            if (text.ContainsKey(ScannerController.SCAN_SUCCESS))
+            try
             {
-                jobId = text[ScannerController.SCAN_SUCCESS];
-            }
+                var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
+                jobId = (string)job["jobuid"];
 
-            string error = "";
-            if (text.ContainsKey(ScannerController.SCAN_ERROR))
+                if (string.IsNullOrEmpty(jobId))
+                {
+                    Console.WriteLine("Failed to create job.");
+                    return;
+                }
+            }
+            catch (Exception ex)
             {
-                error = text[ScannerController.SCAN_ERROR];
+                Console.WriteLine($"Error: {ex.Message}");
+                return;
             }
 
             if (!string.IsNullOrEmpty(jobId))
@@ -122,10 +138,7 @@ namespace MauiAppDocScan
                     await ImageScrollView.ScrollToAsync((Image)lastImage, ScrollToPosition.MakeVisible, true);
                 }
             }
-            else if (!string.IsNullOrEmpty(error))
-            {
-                DisplayAlert("Error", error, "OK");
-            }
+            await scannerController.DeleteJob(host, jobId);
         }
 
         private void DrawImage(byte[] buffer)

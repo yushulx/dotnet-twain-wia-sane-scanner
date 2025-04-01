@@ -2,7 +2,7 @@
 The project demonstrates how to use [WiX Toolset](https://wixtoolset.org/) to create a Windows Installer for a .NET TWAIN document scanner application and Dynamic Web TWAIN Service. 
 
 ## How to Build the Installer
-1. Build the `WinFormsDocScan` project to generate the document scanner application. You need to request a [30-day FREE trial license](https://www.dynamsoft.com/customer/license/trialLicense?product=dwt) and update the license key in the `Form1.cs` file.
+1. Build the `WinFormsDocScan` project to generate the document scanner application. You need to request a [30-day FREE trial license](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform) and update the license key in the `Form1.cs` file.
 
     ![windows-dotnet-desktop-document-scanner](https://github.com/yushulx/dotnet-twain-scanner-installer/assets/2202306/884ea3dd-d620-49ad-91d1-1acd5e214ba0)
 

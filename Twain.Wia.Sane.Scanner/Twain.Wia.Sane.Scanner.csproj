@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Twain.Wia.Sane.Scanner</PackageId>
-    <Version>1.2.0</Version>
+    <Version>2.0.0</Version>
     <Authors>yushulx</Authors>
     <Company>Dynamsoft</Company>
     <TargetFramework>net8.0</TargetFramework>
