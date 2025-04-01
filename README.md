@@ -8,6 +8,7 @@ This .NET package provides a wrapper for calling the **Dynamic Web TWAIN Service
 - **ICA (macOS)**
 - **eSCL (AirScan / Mopria)**
 
+## Demo Video
 https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/1046f5f4-2009-4905-95b5-c750195df715
 
 ---
@@ -36,7 +37,7 @@ After installation, open `http://127.0.0.1:18625/` in your browser to configure 
 
 > By default, the service is bound to `127.0.0.1`. To access it across the LAN, change the host to your local IP (e.g., `192.168.8.72`).
 
-![dynamsoft-service-config](https://github.com/yushulx/dynamsoft-service-REST-API/assets/2202306/e2b1292e-dfbd-4821-bf41-70e2847dd51e)
+![dynamic-web-twain-service-config](https://github.com/user-attachments/assets/63396561-2833-461f-961b-ed01796f8d83)
 
 ---
 
@@ -189,7 +190,8 @@ Please select an operation:
 - 🔧 [Command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
 - 📱 [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
 
-    ![maui-doc-scan](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/assets/2202306/5df6b2de-80f0-45b7-b8f9-3a394c07153c)
+    ![maui-document-scan](https://github.com/user-attachments/assets/b75789d8-a31f-4096-9cb6-9235216c4466)
+
 
 - 🪟 [WinForms](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/WinFormsDocScan)
 
