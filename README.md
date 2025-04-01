@@ -37,7 +37,7 @@ After installation, open `http://127.0.0.1:18625/` in your browser to configure 
 
 > By default, the service is bound to `127.0.0.1`. To access it across the LAN, change the host to your local IP (e.g., `192.168.8.72`).
 
-![dynamic-web-twain-service-config](https://github.com/user-attachments/assets/63396561-2833-461f-961b-ed01796f8d83)
+![dynamic-web-twain-service-config](screenshots/dynamic-web-twain-service-config.png)
 
 ---
 
@@ -190,7 +190,7 @@ Please select an operation:
 - 🔧 [Command-line](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/command-line)
 - 📱 [.NET MAUI](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/MauiAppDocScan)
 
-    ![maui-document-scan](https://github.com/user-attachments/assets/b75789d8-a31f-4096-9cb6-9235216c4466)
+    ![maui-document-scan](screenshots/maui-document-scan.png)
 
 
 - 🪟 [WinForms](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/tree/main/examples/WinFormsDocScan)
