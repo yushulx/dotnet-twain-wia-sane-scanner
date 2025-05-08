@@ -107,7 +107,7 @@ public class ScannerController
             // Create request with headers
             var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Content = content;
-            request.Headers.Add("X-DICS-LICENSE-KEY", licenseKey);
+            request.Headers.Add("DWT-PRODUCT-KEY", licenseKey);
 
             var response = await _httpClient.SendAsync(request);
             var responseText = await response.Content.ReadAsStringAsync();
@@ -549,7 +549,7 @@ public class ScannerController
 
         if (parameters.ContainsKey("password"))
         {
-            request.Headers.Add("X-DICS-DOC-PASSWORD", parameters["password"].ToString());
+            request.Headers.Add("DWT-DOC-PASSWORD", parameters["password"].ToString());
         }
 
         try
