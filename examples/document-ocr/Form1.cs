@@ -29,7 +29,7 @@ namespace WinFormsDocScan
             InitializeComponent();
 
             // Maximize the window by default for better user experience
-            this.WindowState = FormWindowState.Maximized;
+            this.WindowState = FormWindowState.Normal;
 
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
 

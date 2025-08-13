@@ -32,8 +32,8 @@
 
             // Create main container panels
             mainSplitContainer = new SplitContainer();
+            rightSplitContainer = new SplitContainer();
             operationPanel = new Panel();
-            contentSplitContainer = new SplitContainer();
 
             // Scanner controls
             scannerGroupBox = new GroupBox();
@@ -65,10 +65,10 @@
             mainSplitContainer.Panel2.SuspendLayout();
             mainSplitContainer.SuspendLayout();
 
-            ((System.ComponentModel.ISupportInitialize)(contentSplitContainer)).BeginInit();
-            contentSplitContainer.Panel1.SuspendLayout();
-            contentSplitContainer.Panel2.SuspendLayout();
-            contentSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(rightSplitContainer)).BeginInit();
+            rightSplitContainer.Panel1.SuspendLayout();
+            rightSplitContainer.Panel2.SuspendLayout();
+            rightSplitContainer.SuspendLayout();
 
             scannerGroupBox.SuspendLayout();
             ocrGroupBox.SuspendLayout();
@@ -77,18 +77,32 @@
             SuspendLayout();
 
             // 
-            // mainSplitContainer - Vertical split: Operations (top) and Content (bottom)
+            // mainSplitContainer - Horizontal split: Images (left) and Controls (right) - 2:1 ratio
             // 
             mainSplitContainer.Dock = DockStyle.Fill;
-            mainSplitContainer.FixedPanel = FixedPanel.Panel1;
+            mainSplitContainer.FixedPanel = FixedPanel.Panel2;
             mainSplitContainer.Location = new Point(0, 0);
             mainSplitContainer.Name = "mainSplitContainer";
-            mainSplitContainer.Orientation = Orientation.Horizontal;
-            mainSplitContainer.Panel1.Controls.Add(operationPanel);
-            mainSplitContainer.Panel2.Controls.Add(contentSplitContainer);
+            mainSplitContainer.Orientation = Orientation.Vertical;
+            mainSplitContainer.Panel1.Controls.Add(imagePanel);
+            mainSplitContainer.Panel2.Controls.Add(rightSplitContainer);
             mainSplitContainer.Size = new Size(1200, 800);
-            mainSplitContainer.SplitterDistance = 120;
+            mainSplitContainer.SplitterDistance = 800;
             mainSplitContainer.TabIndex = 0;
+
+            // 
+            // rightSplitContainer - Vertical split: Operations (top) and Results (bottom) - 1:1 ratio
+            // 
+            rightSplitContainer.Dock = DockStyle.Fill;
+            rightSplitContainer.FixedPanel = FixedPanel.Panel1;
+            rightSplitContainer.Location = new Point(0, 0);
+            rightSplitContainer.Name = "rightSplitContainer";
+            rightSplitContainer.Orientation = Orientation.Horizontal;
+            rightSplitContainer.Panel1.Controls.Add(operationPanel);
+            rightSplitContainer.Panel2.Controls.Add(textPanel);
+            rightSplitContainer.Size = new Size(396, 800);
+            rightSplitContainer.SplitterDistance = 450;
+            rightSplitContainer.TabIndex = 0;
 
             // 
             // operationPanel - Contains grouped scanner and OCR controls
@@ -99,7 +113,7 @@
             operationPanel.Location = new Point(0, 0);
             operationPanel.Name = "operationPanel";
             operationPanel.Padding = new Padding(10);
-            operationPanel.Size = new Size(1200, 120);
+            operationPanel.Size = new Size(396, 450);
             operationPanel.TabIndex = 0;
             operationPanel.BorderStyle = BorderStyle.FixedSingle;
 
@@ -114,7 +128,7 @@
             scannerGroupBox.Controls.Add(button1);
             scannerGroupBox.Location = new Point(13, 13);
             scannerGroupBox.Name = "scannerGroupBox";
-            scannerGroupBox.Size = new Size(720, 94);
+            scannerGroupBox.Size = new Size(370, 160);
             scannerGroupBox.TabIndex = 0;
             scannerGroupBox.TabStop = false;
             scannerGroupBox.Text = "Scanner & Image Operations";
@@ -124,7 +138,7 @@
             // 
             button1.Location = new Point(6, 22);
             button1.Name = "button1";
-            button1.Size = new Size(120, 53);
+            button1.Size = new Size(110, 30);
             button1.TabIndex = 0;
             button1.Text = "Get Devices";
             button1.UseVisualStyleBackColor = true;
@@ -135,17 +149,17 @@
             // 
             comboBox1.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox1.FormattingEnabled = true;
-            comboBox1.Location = new Point(135, 35);
+            comboBox1.Location = new Point(125, 22);
             comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(180, 23);
+            comboBox1.Size = new Size(235, 23);
             comboBox1.TabIndex = 1;
 
             // 
             // button2 - Scan Document
             // 
-            button2.Location = new Point(325, 22);
+            button2.Location = new Point(6, 58);
             button2.Name = "button2";
-            button2.Size = new Size(120, 53);
+            button2.Size = new Size(110, 30);
             button2.TabIndex = 2;
             button2.Text = "Scan Document";
             button2.UseVisualStyleBackColor = true;
@@ -154,20 +168,20 @@
             // 
             // loadImageButton
             // 
-            loadImageButton.Location = new Point(455, 22);
+            loadImageButton.Location = new Point(125, 58);
             loadImageButton.Name = "loadImageButton";
-            loadImageButton.Size = new Size(120, 53);
+            loadImageButton.Size = new Size(110, 30);
             loadImageButton.TabIndex = 3;
-            loadImageButton.Text = "Load Image Files";
+            loadImageButton.Text = "Load Image";
             loadImageButton.UseVisualStyleBackColor = true;
             loadImageButton.Click += loadImageButton_Click;
 
             // 
             // deleteImageButton
             // 
-            deleteImageButton.Location = new Point(585, 22);
+            deleteImageButton.Location = new Point(6, 94);
             deleteImageButton.Name = "deleteImageButton";
-            deleteImageButton.Size = new Size(120, 25);
+            deleteImageButton.Size = new Size(110, 30);
             deleteImageButton.TabIndex = 4;
             deleteImageButton.Text = "Delete Selected";
             deleteImageButton.UseVisualStyleBackColor = true;
@@ -177,9 +191,9 @@
             // 
             // deleteAllButton
             // 
-            deleteAllButton.Location = new Point(585, 50);
+            deleteAllButton.Location = new Point(125, 94);
             deleteAllButton.Name = "deleteAllButton";
-            deleteAllButton.Size = new Size(120, 25);
+            deleteAllButton.Size = new Size(110, 30);
             deleteAllButton.TabIndex = 5;
             deleteAllButton.Text = "Delete All";
             deleteAllButton.UseVisualStyleBackColor = true;
@@ -193,9 +207,9 @@
             ocrGroupBox.Controls.Add(ocrButton);
             ocrGroupBox.Controls.Add(languageComboBox);
             ocrGroupBox.Controls.Add(languageLabel);
-            ocrGroupBox.Location = new Point(610, 13);
+            ocrGroupBox.Location = new Point(13, 185);
             ocrGroupBox.Name = "ocrGroupBox";
-            ocrGroupBox.Size = new Size(400, 94);
+            ocrGroupBox.Size = new Size(370, 94);
             ocrGroupBox.TabIndex = 1;
             ocrGroupBox.TabStop = false;
             ocrGroupBox.Text = "OCR Operations";
@@ -243,18 +257,6 @@
             clearTextButton.Click += clearTextButton_Click;
 
             // 
-            // contentSplitContainer - Horizontal split: Images (left) and Text (right)
-            // 
-            contentSplitContainer.Dock = DockStyle.Fill;
-            contentSplitContainer.Location = new Point(0, 0);
-            contentSplitContainer.Name = "contentSplitContainer";
-            contentSplitContainer.Panel1.Controls.Add(imagePanel);
-            contentSplitContainer.Panel2.Controls.Add(textPanel);
-            contentSplitContainer.Size = new Size(1200, 676);
-            contentSplitContainer.SplitterDistance = 600;
-            contentSplitContainer.TabIndex = 0;
-
-            // 
             // imagePanel - Contains scanned images
             // 
             imagePanel.Controls.Add(imageLabel);
@@ -262,7 +264,7 @@
             imagePanel.Dock = DockStyle.Fill;
             imagePanel.Location = new Point(0, 0);
             imagePanel.Name = "imagePanel";
-            imagePanel.Size = new Size(600, 676);
+            imagePanel.Size = new Size(800, 800);
             imagePanel.TabIndex = 0;
             imagePanel.BorderStyle = BorderStyle.FixedSingle;
 
@@ -302,7 +304,7 @@
             textPanel.Dock = DockStyle.Fill;
             textPanel.Location = new Point(0, 0);
             textPanel.Name = "textPanel";
-            textPanel.Size = new Size(596, 676);
+            textPanel.Size = new Size(396, 346);
             textPanel.TabIndex = 0;
             textPanel.BorderStyle = BorderStyle.FixedSingle;
 
@@ -316,7 +318,7 @@
             textLabel.Location = new Point(0, 0);
             textLabel.Name = "textLabel";
             textLabel.Padding = new Padding(5);
-            textLabel.Size = new Size(594, 25);
+            textLabel.Size = new Size(394, 25);
             textLabel.TabIndex = 1;
             textLabel.Text = "📝 OCR Text Results";
             textLabel.TextAlign = ContentAlignment.MiddleLeft;
@@ -331,7 +333,7 @@
             ocrTextBox.Name = "ocrTextBox";
             ocrTextBox.ReadOnly = true;
             ocrTextBox.ScrollBars = ScrollBars.Both;
-            ocrTextBox.Size = new Size(564, 626);
+            ocrTextBox.Size = new Size(366, 296);
             ocrTextBox.TabIndex = 0;
             ocrTextBox.WordWrap = true;
 
@@ -352,10 +354,10 @@
             ((System.ComponentModel.ISupportInitialize)(mainSplitContainer)).EndInit();
             mainSplitContainer.ResumeLayout(false);
 
-            contentSplitContainer.Panel1.ResumeLayout(false);
-            contentSplitContainer.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(contentSplitContainer)).EndInit();
-            contentSplitContainer.ResumeLayout(false);
+            rightSplitContainer.Panel1.ResumeLayout(false);
+            rightSplitContainer.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(rightSplitContainer)).EndInit();
+            rightSplitContainer.ResumeLayout(false);
 
             scannerGroupBox.ResumeLayout(false);
             scannerGroupBox.PerformLayout();
@@ -377,8 +379,8 @@
         private Button deleteAllButton;
         private FlowLayoutPanel flowLayoutPanel1;
         private SplitContainer mainSplitContainer;
+        private SplitContainer rightSplitContainer;
         private Panel operationPanel;
-        private SplitContainer contentSplitContainer;
         private GroupBox scannerGroupBox;
         private GroupBox ocrGroupBox;
         private ComboBox languageComboBox;
