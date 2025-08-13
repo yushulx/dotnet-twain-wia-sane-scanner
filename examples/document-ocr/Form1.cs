@@ -49,6 +49,9 @@ namespace WinFormsDocScan
             imagePanel.SizeChanged += ImagePanel_SizeChanged;
             flowLayoutPanel1.SizeChanged += FlowLayoutPanel1_SizeChanged;
 
+            // Initialize drag-and-drop functionality
+            InitializeDragAndDrop();
+
             InitializeOcrLanguages();
         }
 
@@ -74,6 +77,141 @@ namespace WinFormsDocScan
             {
                 MessageBox.Show($"Error initializing OCR languages: {ex.Message}", "OCR Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+        }
+
+        private void InitializeDragAndDrop()
+        {
+            // Enable drag-and-drop on the form and the image panel
+            this.AllowDrop = true;
+            flowLayoutPanel1.AllowDrop = true;
+            imagePanel.AllowDrop = true;
+
+            // Form drag-and-drop events
+            this.DragEnter += Form1_DragEnter;
+            this.DragDrop += Form1_DragDrop;
+
+            // FlowLayoutPanel drag-and-drop events
+            flowLayoutPanel1.DragEnter += Form1_DragEnter;
+            flowLayoutPanel1.DragDrop += Form1_DragDrop;
+
+            // ImagePanel drag-and-drop events
+            imagePanel.DragEnter += Form1_DragEnter;
+            imagePanel.DragDrop += Form1_DragDrop;
+        }
+
+        private void Form1_DragEnter(object? sender, DragEventArgs e)
+        {
+            // Check if the dragged data contains file(s)
+            if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
+            {
+                var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    // Check if any of the files are supported formats
+                    bool hasValidFiles = false;
+                    foreach (string file in files)
+                    {
+                        string extension = Path.GetExtension(file).ToLower();
+                        if (IsValidFileFormat(extension))
+                        {
+                            hasValidFiles = true;
+                            break;
+                        }
+                    }
+
+                    if (hasValidFiles)
+                    {
+                        e.Effect = DragDropEffects.Copy;
+                        // Optional: Change cursor or add visual feedback
+                        Debug.WriteLine("Drag Enter: Valid files detected");
+                    }
+                    else
+                    {
+                        e.Effect = DragDropEffects.None;
+                        Debug.WriteLine("Drag Enter: No valid files detected");
+                    }
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private async void Form1_DragDrop(object? sender, DragEventArgs e)
+        {
+            try
+            {
+                if (e.Data?.GetDataPresent(DataFormats.FileDrop) == true)
+                {
+                    var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                    if (files != null && files.Length > 0)
+                    {
+                        Debug.WriteLine($"Drag Drop: Processing {files.Length} files");
+
+                        // Filter valid files and show feedback
+                        var validFiles = files.Where(file => IsValidFileFormat(Path.GetExtension(file).ToLower())).ToArray();
+                        var invalidFiles = files.Where(file => !IsValidFileFormat(Path.GetExtension(file).ToLower())).ToArray();
+
+                        if (invalidFiles.Length > 0)
+                        {
+                            MessageBox.Show(
+                                $"Skipped {invalidFiles.Length} unsupported file(s).\n" +
+                                "Supported formats: JPG, PNG, BMP, GIF, TIFF, PDF",
+                                "File Format Notice",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+
+                        if (validFiles.Length > 0)
+                        {
+                            // Process each valid file
+                            foreach (string fileName in validFiles)
+                            {
+                                string extension = Path.GetExtension(fileName).ToLower();
+                                
+                                if (extension == ".pdf")
+                                {
+                                    // Load PDF file and convert pages to images
+                                    await LoadPdfFile(fileName);
+                                }
+                                else
+                                {
+                                    // Load regular image file
+                                    LoadImageFile(fileName);
+                                }
+                            }
+
+                            MessageBox.Show(
+                                $"Successfully loaded {validFiles.Length} file(s) via drag-and-drop!",
+                                "Files Loaded",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Drag Drop Error: {ex.Message}");
+                MessageBox.Show($"Error processing dropped files: {ex.Message}",
+                              "Drag-and-Drop Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private bool IsValidFileFormat(string extension)
+        {
+            // List of supported file extensions
+            var supportedExtensions = new[]
+            {
+                ".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".tif", ".pdf"
+            };
+            
+            return supportedExtensions.Contains(extension);
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -437,7 +575,7 @@ namespace WinFormsDocScan
                         try
                         {
                             string extension = Path.GetExtension(fileName).ToLower();
-                            
+
                             if (extension == ".pdf")
                             {
                                 // Load PDF file and convert pages to images
@@ -620,31 +758,31 @@ namespace WinFormsDocScan
                             using (var stream = new InMemoryRandomAccessStream())
                             {
                                 await pdfPage.RenderToStreamAsync(stream, renderOptions);
-                                
+
                                 // Convert to Bitmap
                                 stream.Seek(0);
                                 using (var netStream = stream.AsStream())
                                 {
                                     var bitmap = new Bitmap(netStream);
-                                    
+
                                     Debug.WriteLine($"Successfully converted PDF page {pageIndex + 1}/{pageCount} - Size: {bitmap.Size}");
 
                                     // Store the image for OCR
                                     scannedImages.Add(bitmap);
 
                                     var pictureBox = CreateImagePictureBox(bitmap, scannedImages.Count - 1);
-                                    
+
                                     // Add PDF-specific information to the picture box for identification
                                     var pdfInfo = $"PDF:{Path.GetFileName(fileName)}:Page{pageIndex + 1}";
                                     // Store PDF info in a custom property, but keep Tag as integer for selection
                                     pictureBox.Tag = scannedImages.Count - 1; // Keep as integer for selection
                                     pictureBox.AccessibleDescription = pdfInfo; // Store PDF info here
-                                    
+
                                     // Update tooltip with PDF page information
                                     var tooltip = new ToolTip();
                                     var tooltipText = $"PDF Page {pageIndex + 1} of {pageCount}\nFile: {Path.GetFileName(fileName)}\nSize: {bitmap.Width}x{bitmap.Height}\nClick to select for OCR";
                                     tooltip.SetToolTip(pictureBox, tooltipText);
-                                    
+
                                     flowLayoutPanel1.Controls.Add(pictureBox);
                                     flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
 
