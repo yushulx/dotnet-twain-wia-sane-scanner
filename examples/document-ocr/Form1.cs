@@ -151,21 +151,26 @@ namespace WinFormsDocScan
 
             if (!string.IsNullOrEmpty(jobId))
             {
-                var images = await scannerController.GetImageStreams(host, jobId);
-                for (int i = 0; i < images.Count; i++)
+                while (true)
                 {
-                    MemoryStream stream = new MemoryStream(images[i]);
-                    Image image = Image.FromStream(stream);
+                    byte[] bytes = await scannerController.GetImageStream(host, jobId);
 
-                    // Store the image for OCR
-                    scannedImages.Add(image);
+                    if (bytes.Length == 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        MemoryStream stream = new MemoryStream(bytes);
+                        Image image = Image.FromStream(stream);
 
-                    var pictureBox = CreateImagePictureBox(image, scannedImages.Count - 1);
-                    flowLayoutPanel1.Controls.Add(pictureBox);
-                    flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
+                        // Store the image for OCR
+                        scannedImages.Add(image);
 
-                    // Debug output to verify image is added
-                    Debug.WriteLine($"Added image {i + 1} to flowLayoutPanel1. Total controls: {flowLayoutPanel1.Controls.Count}");
+                        var pictureBox = CreateImagePictureBox(image, scannedImages.Count - 1);
+                        flowLayoutPanel1.Controls.Add(pictureBox);
+                        flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
+                    }
                 }
             }
             await scannerController.DeleteJob(host, jobId);
