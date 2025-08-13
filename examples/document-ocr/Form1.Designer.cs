@@ -172,7 +172,7 @@
             loadImageButton.Name = "loadImageButton";
             loadImageButton.Size = new Size(110, 30);
             loadImageButton.TabIndex = 3;
-            loadImageButton.Text = "Load Image";
+            loadImageButton.Text = "Load Files";
             loadImageButton.UseVisualStyleBackColor = true;
             loadImageButton.Click += loadImageButton_Click;
 

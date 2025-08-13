@@ -7,7 +7,8 @@ using Windows.Graphics.Imaging;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Storage.Streams;
 using System.Diagnostics;
-using System.Linq;
+using Windows.Data.Pdf;
+using Windows.Storage;
 
 namespace WinFormsDocScan
 {
@@ -215,6 +216,10 @@ namespace WinFormsDocScan
             pictureBox.Image = image;
             pictureBox.Click += PictureBox_Click;
 
+            // Add tooltip for better user experience
+            var tooltip = new ToolTip();
+            tooltip.SetToolTip(pictureBox, $"Image {index + 1} - Click to select for OCR\nSize: {image.Width}x{image.Height}");
+
             // Debug output to verify sizing
             Debug.WriteLine($"Created PictureBox_{index}: Size={pictureBox.Size}, Panel Width={panelWidth}, Aspect Ratio={aspectRatio:F2}");
 
@@ -248,6 +253,16 @@ namespace WinFormsDocScan
                 selectedImageIndex = index;
                 ocrButton.Enabled = true;
                 deleteImageButton.Enabled = true;
+
+                // Log selection with additional info for PDF pages
+                if (!string.IsNullOrEmpty(pictureBox.AccessibleDescription))
+                {
+                    Debug.WriteLine($"Selected PDF page: {pictureBox.AccessibleDescription}");
+                }
+                else
+                {
+                    Debug.WriteLine($"Selected image index: {index}");
+                }
             }
         }
 
@@ -396,12 +411,14 @@ namespace WinFormsDocScan
             ocrTextBox.Clear();
         }
 
-        private void loadImageButton_Click(object sender, EventArgs e)
+        private async void loadImageButton_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Title = "Select Image Files";
-                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.tif|" +
+                openFileDialog.Title = "Select Image or PDF Files";
+                openFileDialog.Filter = "All Supported Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.tif;*.pdf|" +
+                                      "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff;*.tif|" +
+                                      "PDF Files|*.pdf|" +
                                       "JPEG files|*.jpg;*.jpeg|" +
                                       "PNG files|*.png|" +
                                       "Bitmap files|*.bmp|" +
@@ -419,25 +436,23 @@ namespace WinFormsDocScan
                     {
                         try
                         {
-                            // Load the image from file
-                            Image image = Image.FromFile(fileName);
-                            Debug.WriteLine($"Successfully loaded image: {Path.GetFileName(fileName)} - Size: {image.Size}");
-
-                            // Store the image for OCR
-                            scannedImages.Add(image);
-
-                            var pictureBox = CreateImagePictureBox(image, scannedImages.Count - 1);
-                            flowLayoutPanel1.Controls.Add(pictureBox);
-                            flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
-
-                            // Debug output to verify image is added
-                            Debug.WriteLine($"Added PictureBox to flowLayoutPanel1. Total controls: {flowLayoutPanel1.Controls.Count}");
-                            Debug.WriteLine($"FlowLayoutPanel1 properties - Size: {flowLayoutPanel1.Size}, Visible: {flowLayoutPanel1.Visible}, Location: {flowLayoutPanel1.Location}");
+                            string extension = Path.GetExtension(fileName).ToLower();
+                            
+                            if (extension == ".pdf")
+                            {
+                                // Load PDF file and convert pages to images
+                                await LoadPdfFile(fileName);
+                            }
+                            else
+                            {
+                                // Load regular image file
+                                LoadImageFile(fileName);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Error loading image file '{Path.GetFileName(fileName)}': {ex.Message}",
-                                          "Image Load Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show($"Error loading file '{Path.GetFileName(fileName)}': {ex.Message}",
+                                          "File Load Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
                     }
 
@@ -535,6 +550,125 @@ namespace WinFormsDocScan
                     newHeight = Math.Max(300, newHeight); // Minimum height
                     pictureBox.Height = newHeight;
                 }
+            }
+        }
+
+        private void LoadImageFile(string fileName)
+        {
+            // Load regular image file
+            Image image = Image.FromFile(fileName);
+            Debug.WriteLine($"Successfully loaded image: {Path.GetFileName(fileName)} - Size: {image.Size}");
+
+            // Store the image for OCR
+            scannedImages.Add(image);
+
+            var pictureBox = CreateImagePictureBox(image, scannedImages.Count - 1);
+            flowLayoutPanel1.Controls.Add(pictureBox);
+            flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
+
+            // Debug output to verify image is added
+            Debug.WriteLine($"Added PictureBox to flowLayoutPanel1. Total controls: {flowLayoutPanel1.Controls.Count}");
+        }
+
+        private async Task LoadPdfFile(string fileName)
+        {
+            try
+            {
+                Debug.WriteLine($"Loading PDF: {Path.GetFileName(fileName)}");
+
+                // Use Windows native PDF API
+                var file = await StorageFile.GetFileFromPathAsync(fileName);
+                var pdfDocument = await PdfDocument.LoadFromFileAsync(file);
+
+                if (pdfDocument == null)
+                {
+                    MessageBox.Show($"Failed to load PDF file '{Path.GetFileName(fileName)}'. The file may be corrupted or password-protected.",
+                                  "PDF Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int pageCount = (int)pdfDocument.PageCount;
+                Debug.WriteLine($"PDF has {pageCount} pages");
+
+                // Show progress for large PDFs
+                if (pageCount > 10)
+                {
+                    var result = MessageBox.Show(
+                        $"This PDF has {pageCount} pages. Loading may take some time. Continue?",
+                        "Large PDF File",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.No)
+                        return;
+                }
+
+                // Convert each page to an image
+                for (uint pageIndex = 0; pageIndex < pdfDocument.PageCount; pageIndex++)
+                {
+                    try
+                    {
+                        using (var pdfPage = pdfDocument.GetPage(pageIndex))
+                        {
+                            // Render the page at high DPI for good OCR quality
+                            var renderOptions = new PdfPageRenderOptions
+                            {
+                                DestinationWidth = (uint)(pdfPage.Size.Width * 2.5), // ~300 DPI equivalent
+                                DestinationHeight = (uint)(pdfPage.Size.Height * 2.5)
+                            };
+
+                            using (var stream = new InMemoryRandomAccessStream())
+                            {
+                                await pdfPage.RenderToStreamAsync(stream, renderOptions);
+                                
+                                // Convert to Bitmap
+                                stream.Seek(0);
+                                using (var netStream = stream.AsStream())
+                                {
+                                    var bitmap = new Bitmap(netStream);
+                                    
+                                    Debug.WriteLine($"Successfully converted PDF page {pageIndex + 1}/{pageCount} - Size: {bitmap.Size}");
+
+                                    // Store the image for OCR
+                                    scannedImages.Add(bitmap);
+
+                                    var pictureBox = CreateImagePictureBox(bitmap, scannedImages.Count - 1);
+                                    
+                                    // Add PDF-specific information to the picture box for identification
+                                    var pdfInfo = $"PDF:{Path.GetFileName(fileName)}:Page{pageIndex + 1}";
+                                    // Store PDF info in a custom property, but keep Tag as integer for selection
+                                    pictureBox.Tag = scannedImages.Count - 1; // Keep as integer for selection
+                                    pictureBox.AccessibleDescription = pdfInfo; // Store PDF info here
+                                    
+                                    // Update tooltip with PDF page information
+                                    var tooltip = new ToolTip();
+                                    var tooltipText = $"PDF Page {pageIndex + 1} of {pageCount}\nFile: {Path.GetFileName(fileName)}\nSize: {bitmap.Width}x{bitmap.Height}\nClick to select for OCR";
+                                    tooltip.SetToolTip(pictureBox, tooltipText);
+                                    
+                                    flowLayoutPanel1.Controls.Add(pictureBox);
+                                    flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
+
+                                    Debug.WriteLine($"Added PDF page {pageIndex + 1} as PictureBox to flowLayoutPanel1");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error processing PDF page {pageIndex + 1}: {ex.Message}");
+                        MessageBox.Show($"Error processing page {pageIndex + 1} of PDF '{Path.GetFileName(fileName)}': {ex.Message}",
+                                      "PDF Page Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+
+                MessageBox.Show($"Successfully loaded {pageCount} pages from PDF '{Path.GetFileName(fileName)}'",
+                              "PDF Loaded", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading PDF file: {ex.Message}");
+                MessageBox.Show($"Error loading PDF file '{Path.GetFileName(fileName)}': {ex.Message}\n\nPlease ensure the PDF is not corrupted and not password-protected.",
+                              "PDF Load Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
