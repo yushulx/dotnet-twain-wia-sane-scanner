@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/1b494378-ce68-4f14-af5d-ba5c677a2846
 
 ## Prerequisites
 - Install [Dynamic Web TWAIN Service for Windows](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi)  
-- Get a [free trial license](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform)
+- Get a [free trial license](https://www.dynamsoft.com/customer/license/trialLicense/?product=dcv&package=cross-platform) for Dynamic Web TWAIN
 
 ## Features
 

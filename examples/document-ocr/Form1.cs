@@ -52,6 +52,9 @@ namespace WinFormsDocScan
             // Initialize drag-and-drop functionality
             InitializeDragAndDrop();
 
+            // Initialize clipboard functionality
+            InitializeClipboardSupport();
+
             InitializeOcrLanguages();
         }
 
@@ -212,6 +215,189 @@ namespace WinFormsDocScan
             };
             
             return supportedExtensions.Contains(extension);
+        }
+
+        private void InitializeClipboardSupport()
+        {
+            // Enable key events for the form
+            this.KeyPreview = true;
+            this.KeyDown += Form1_KeyDown;
+
+            // Also add a context menu or button for clipboard paste
+            CreateClipboardPasteMenu();
+        }
+
+        private void CreateClipboardPasteMenu()
+        {
+            // Create a context menu for right-click paste
+            var contextMenu = new ContextMenuStrip();
+            
+            var pasteMenuItem = new ToolStripMenuItem("Paste Image from Clipboard (Ctrl+V)")
+            {
+                ShortcutKeys = Keys.Control | Keys.V
+            };
+            pasteMenuItem.Click += (sender, e) => PasteFromClipboard();
+            
+            var pasteImageMenuItem = new ToolStripMenuItem("Paste Image")
+            {
+                Image = SystemIcons.Information.ToBitmap()
+            };
+            pasteImageMenuItem.Click += (sender, e) => PasteFromClipboard();
+
+            contextMenu.Items.Add(pasteMenuItem);
+            contextMenu.Items.Add(pasteImageMenuItem);
+
+            // Add context menu to form and image panel
+            this.ContextMenuStrip = contextMenu;
+            flowLayoutPanel1.ContextMenuStrip = contextMenu;
+            imagePanel.ContextMenuStrip = contextMenu;
+        }
+
+        private void Form1_KeyDown(object? sender, KeyEventArgs e)
+        {
+            // Handle Ctrl+V for paste
+            if (e.Control && e.KeyCode == Keys.V)
+            {
+                e.Handled = true;
+                PasteFromClipboard();
+            }
+        }
+
+        private void PasteFromClipboard()
+        {
+            try
+            {
+                Debug.WriteLine("Attempting to paste from clipboard...");
+
+                if (Clipboard.ContainsImage())
+                {
+                    // Get image from clipboard
+                    var clipboardImage = Clipboard.GetImage();
+                    if (clipboardImage != null)
+                    {
+                        Debug.WriteLine($"Clipboard image found - Size: {clipboardImage.Size}");
+
+                        // Create a new bitmap from the clipboard image to ensure proper format
+                        var bitmap = new Bitmap(clipboardImage);
+
+                        // Store the image for OCR
+                        scannedImages.Add(bitmap);
+
+                        var pictureBox = CreateImagePictureBox(bitmap, scannedImages.Count - 1);
+                        
+                        // Add clipboard-specific information to the picture box
+                        pictureBox.AccessibleDescription = $"Clipboard:Image:{DateTime.Now:yyyy-MM-dd HH:mm:ss}";
+                        
+                        // Update tooltip with clipboard information
+                        var tooltip = new ToolTip();
+                        var tooltipText = $"Clipboard Image\nPasted: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\nSize: {bitmap.Width}x{bitmap.Height}\nClick to select for OCR";
+                        tooltip.SetToolTip(pictureBox, tooltipText);
+                        
+                        flowLayoutPanel1.Controls.Add(pictureBox);
+                        flowLayoutPanel1.Controls.SetChildIndex(pictureBox, 0);
+
+                        Debug.WriteLine($"Added clipboard image as PictureBox to flowLayoutPanel1");
+
+                        MessageBox.Show(
+                            "Image successfully pasted from clipboard!",
+                            "Clipboard Paste",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            "Failed to retrieve image from clipboard.",
+                            "Clipboard Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
+                    }
+                }
+                else if (Clipboard.ContainsFileDropList())
+                {
+                    // Handle file paths from clipboard (when copying files in Explorer)
+                    var files = Clipboard.GetFileDropList();
+                    Debug.WriteLine($"Clipboard contains {files.Count} file(s)");
+
+                    if (files.Count > 0)
+                    {
+                        var validFiles = new List<string>();
+                        foreach (string? file in files)
+                        {
+                            if (!string.IsNullOrEmpty(file))
+                            {
+                                string extension = Path.GetExtension(file).ToLower();
+                                if (IsValidFileFormat(extension))
+                                {
+                                    validFiles.Add(file);
+                                }
+                            }
+                        }
+
+                        if (validFiles.Count > 0)
+                        {
+                            // Process the files
+                            ProcessClipboardFiles(validFiles);
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                "No supported image or PDF files found in clipboard.\nSupported formats: JPG, PNG, BMP, GIF, TIFF, PDF",
+                                "Clipboard - No Valid Files",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "No image or supported files found in clipboard.\n\nYou can paste:\n• Images (screenshots, copied images)\n• File paths (copied from Windows Explorer)",
+                        "Clipboard - No Content",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Clipboard paste error: {ex.Message}");
+                MessageBox.Show($"Error pasting from clipboard: {ex.Message}",
+                              "Clipboard Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void ProcessClipboardFiles(List<string> files)
+        {
+            try
+            {
+                foreach (string fileName in files)
+                {
+                    string extension = Path.GetExtension(fileName).ToLower();
+                    
+                    if (extension == ".pdf")
+                    {
+                        // Load PDF file and convert pages to images
+                        await LoadPdfFile(fileName);
+                    }
+                    else
+                    {
+                        // Load regular image file
+                        LoadImageFile(fileName);
+                    }
+                }
+
+                MessageBox.Show(
+                    $"Successfully loaded {files.Count} file(s) from clipboard!",
+                    "Clipboard Files Loaded",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error processing clipboard files: {ex.Message}");
+                MessageBox.Show($"Error processing clipboard files: {ex.Message}",
+                              "Clipboard Processing Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void button1_Click(object sender, EventArgs e)
