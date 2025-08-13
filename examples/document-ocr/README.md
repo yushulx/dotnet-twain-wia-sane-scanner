@@ -41,3 +41,4 @@ A Windows Forms application for document scanning and **Optical Character Recogn
    dotnet run
    ```
 
+   ![.NET Document Scanner with OCR](https://www.dynamsoft.com/codepool/img/2025/08/scan-ocr-document-dotnet.png)
