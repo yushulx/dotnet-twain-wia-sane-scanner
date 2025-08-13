@@ -1,6 +1,8 @@
 # .NET Document Scanner with OCR
 
-A Windows Forms application for document scanning and **Optical Character Recognition (OCR)** built with **.NET 8** and **C#**.
+A Windows Forms application for document scanning and **Optical Character Recognition (OCR)** built with **.NET 8**, **C#**, **Dynamic Web TWAIN REST API** and **Windows.Media.Ocr** API.
+
+https://github.com/user-attachments/assets/1b494378-ce68-4f14-af5d-ba5c677a2846
 
 ## Prerequisites
 - Install [Dynamic Web TWAIN Service for Windows](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi)  
