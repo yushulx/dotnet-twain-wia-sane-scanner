@@ -168,7 +168,7 @@ namespace WinFormsDocScan
             if (!string.IsNullOrEmpty(jobId))
             {
                 var images = await scannerController.GetImageStreams(host, jobId);
-                
+
                 progressBar1.Visible = true;
                 progressBar1.Minimum = 0;
                 progressBar1.Maximum = images.Count;
@@ -179,7 +179,7 @@ namespace WinFormsDocScan
                     MemoryStream stream = new MemoryStream(images[i]);
                     System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
                     AddImageToPanel(image);
-                    
+
                     progressBar1.Value = i + 1;
                     Application.DoEvents();
                 }
@@ -691,7 +691,7 @@ namespace WinFormsDocScan
 
                         document.Save(saveFileDialog.FileName);
                         document.Close();
-                        
+
                         progressBar1.Visible = false;
 
                         MessageBox.Show($"PDF saved successfully!\n{saveFileDialog.FileName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
