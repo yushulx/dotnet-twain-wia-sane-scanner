@@ -39,6 +39,7 @@
             comboBox1 = new ComboBox();
             button1 = new Button();
             label1 = new Label();
+            progressBar1 = new ProgressBar();
             flowLayoutPanel1 = new FlowLayoutPanel();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -47,6 +48,7 @@
             // 
             panel1.BackColor = Color.FromArgb(245, 245, 245);
             panel1.BorderStyle = BorderStyle.FixedSingle;
+            panel1.Controls.Add(progressBar1);
             panel1.Controls.Add(btnDeleteSelected);
             panel1.Controls.Add(btnSaveToPDF);
             panel1.Controls.Add(btnWebcam);
@@ -59,7 +61,7 @@
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1200, 100);
+            panel1.Size = new Size(1200, 115);
             panel1.TabIndex = 0;
             // 
             // btnDeleteSelected
@@ -190,15 +192,24 @@
             label1.TabIndex = 0;
             label1.Text = "📄 Document Scanner Pro";
             // 
+            // progressBar1
+            // 
+            progressBar1.Dock = DockStyle.Bottom;
+            progressBar1.Location = new Point(0, 103);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(1198, 10);
+            progressBar1.TabIndex = 9;
+            progressBar1.Visible = false;
+            // 
             // flowLayoutPanel1
             // 
             flowLayoutPanel1.AutoScroll = true;
             flowLayoutPanel1.BackColor = Color.FromArgb(250, 250, 250);
             flowLayoutPanel1.Dock = DockStyle.Fill;
-            flowLayoutPanel1.Location = new Point(0, 100);
+            flowLayoutPanel1.Location = new Point(0, 115);
             flowLayoutPanel1.Name = "flowLayoutPanel1";
             flowLayoutPanel1.Padding = new Padding(15);
-            flowLayoutPanel1.Size = new Size(1200, 600);
+            flowLayoutPanel1.Size = new Size(1200, 585);
             flowLayoutPanel1.TabIndex = 1;
             // 
             // Form1
@@ -229,6 +240,7 @@
         private Button btnWebcam;
         private Button btnSaveToPDF;
         private Button btnDeleteSelected;
+        private ProgressBar progressBar1;
         private FlowLayoutPanel flowLayoutPanel1;
     }
 }

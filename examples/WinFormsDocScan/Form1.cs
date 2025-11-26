@@ -168,12 +168,22 @@ namespace WinFormsDocScan
             if (!string.IsNullOrEmpty(jobId))
             {
                 var images = await scannerController.GetImageStreams(host, jobId);
+                
+                progressBar1.Visible = true;
+                progressBar1.Minimum = 0;
+                progressBar1.Maximum = images.Count;
+                progressBar1.Value = 0;
+
                 for (int i = 0; i < images.Count; i++)
                 {
                     MemoryStream stream = new MemoryStream(images[i]);
                     System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
                     AddImageToPanel(image);
+                    
+                    progressBar1.Value = i + 1;
+                    Application.DoEvents();
                 }
+                progressBar1.Visible = false;
             }
             await scannerController.DeleteJob(host, jobId);
         }
@@ -234,14 +244,14 @@ namespace WinFormsDocScan
             containerPanel.Controls.Add(pictureBox);
             containerPanel.Controls.Add(lblIndex);
             flowLayoutPanel1.Controls.Add(containerPanel);
-            
+
             // Select the new image
             if (selectedPictureBox != null && selectedPictureBox.Parent is Panel oldPanel)
             {
                 oldPanel.BackColor = Color.White;
                 oldPanel.BorderStyle = BorderStyle.FixedSingle;
             }
-            
+
             containerPanel.BackColor = Color.FromArgb(230, 240, 255);
             containerPanel.BorderStyle = BorderStyle.FixedSingle;
             selectedPictureBox = pictureBox;
@@ -636,6 +646,11 @@ namespace WinFormsDocScan
                     {
                         PdfDocument document = new PdfDocument();
 
+                        progressBar1.Visible = true;
+                        progressBar1.Minimum = 0;
+                        progressBar1.Maximum = flowLayoutPanel1.Controls.Count;
+                        progressBar1.Value = 0;
+
                         for (int i = 0; i < flowLayoutPanel1.Controls.Count; i++)
                         {
                             Control control = flowLayoutPanel1.Controls[i];
@@ -670,15 +685,20 @@ namespace WinFormsDocScan
                                     }
                                 }
                             }
+                            progressBar1.Value = i + 1;
+                            Application.DoEvents();
                         }
 
                         document.Save(saveFileDialog.FileName);
                         document.Close();
+                        
+                        progressBar1.Visible = false;
 
                         MessageBox.Show($"PDF saved successfully!\n{saveFileDialog.FileName}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
+                        progressBar1.Visible = false;
                         MessageBox.Show($"Error saving PDF: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
