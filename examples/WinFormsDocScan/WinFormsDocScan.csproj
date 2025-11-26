@@ -8,15 +8,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!--<ItemGroup>
-    <PackageReference Include="Twain.Wia.Sane.Scanner" Version="2.0.1" />
-  </ItemGroup>-->
-
-  <ItemGroup>
+  <!-- <ItemGroup>
     <ProjectReference Include="..\..\Twain.Wia.Sane.Scanner\Twain.Wia.Sane.Scanner.csproj" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <ItemGroup>
+    <PackageReference Include="Twain.Wia.Sane.Scanner" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PDFtoImage" Version="5.2.0" />
     <PackageReference Include="PdfSharp" Version="6.2.0" />
