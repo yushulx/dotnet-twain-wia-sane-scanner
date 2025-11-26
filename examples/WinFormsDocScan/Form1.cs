@@ -57,7 +57,7 @@ namespace WinFormsDocScan
             progressBar1.Visible = true;
 
             var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
-            
+
             progressBar1.Visible = false;
             progressBar1.Style = ProgressBarStyle.Blocks;
 

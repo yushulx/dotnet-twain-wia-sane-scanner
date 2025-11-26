@@ -15,6 +15,7 @@ https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
 ### 🖼️ Image Management
 - **Visual Gallery**: View all scanned/loaded images in a clean, organized gallery
 - **Select & Highlight**: Click any image to select it (highlighted with blue background)
+- **View Full Size**: View a large version of the selected image in a popup window
 - **Delete Images**: Remove individual selected images or clear all at once
 - **Reorder Images**: Drag and drop images to rearrange their order
 - **Auto-numbering**: Images are automatically numbered and updated after changes
@@ -95,6 +96,7 @@ https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
 ### Managing Images
 
 - **Select an Image**: Click on any image to select it (blue highlight)
+- **View Image**: Click **👁️ View** to open the selected image in a large viewer
 - **Delete Selected**: Click **🗑️ Delete** to remove the selected image
 - **Reorder Images**: Click and drag an image to a new position
 - **Clear All**: Click **🗑️ Clear All** to remove all images (with confirmation)
