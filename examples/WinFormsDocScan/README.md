@@ -31,6 +31,7 @@ https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
 - .NET 8.0 SDK or later
 - Webcam (optional, for webcam capture feature)
 - TWAIN/WIA compatible scanner (optional, for scanning feature)
+- Install [Dynamic Web TWAIN Service](https://demo.dynamsoft.com/DWT/DWTResources/dist/DynamsoftServiceSetup.msi) 
 
 ### Installation
 
