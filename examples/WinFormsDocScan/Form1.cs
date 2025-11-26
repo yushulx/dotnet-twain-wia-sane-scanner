@@ -52,7 +52,15 @@ namespace WinFormsDocScan
 
         private async void button1_Click(object sender, EventArgs e)
         {
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            progressBar1.MarqueeAnimationSpeed = 30;
+            progressBar1.Visible = true;
+
             var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
+            
+            progressBar1.Visible = false;
+            progressBar1.Style = ProgressBarStyle.Blocks;
+
             devices.Clear();
             Items.Clear();
             var scanners = new List<Dictionary<string, object>>();
@@ -167,23 +175,28 @@ namespace WinFormsDocScan
 
             if (!string.IsNullOrEmpty(jobId))
             {
-                var images = await scannerController.GetImageStreams(host, jobId);
-
+                progressBar1.Style = ProgressBarStyle.Marquee;
+                progressBar1.MarqueeAnimationSpeed = 30;
                 progressBar1.Visible = true;
-                progressBar1.Minimum = 0;
-                progressBar1.Maximum = images.Count;
-                progressBar1.Value = 0;
 
-                for (int i = 0; i < images.Count; i++)
+                while (true)
                 {
-                    MemoryStream stream = new MemoryStream(images[i]);
+                    byte[] bytes = await scannerController.GetImageStream(host, jobId);
+
+                    if (bytes.Length == 0)
+                    {
+                        break;
+                    }
+
+                    MemoryStream stream = new MemoryStream(bytes);
                     System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
                     AddImageToPanel(image);
 
-                    progressBar1.Value = i + 1;
                     Application.DoEvents();
                 }
+
                 progressBar1.Visible = false;
+                progressBar1.Style = ProgressBarStyle.Blocks;
             }
             await scannerController.DeleteJob(host, jobId);
         }
@@ -703,6 +716,33 @@ namespace WinFormsDocScan
                     }
                 }
             }
+        }
+
+        private void btnViewImage_Click(object sender, EventArgs e)
+        {
+            if (selectedPictureBox == null || selectedPictureBox.Image == null)
+            {
+                MessageBox.Show("Please select an image to view!", "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            Form viewForm = new Form()
+            {
+                Text = "View Image",
+                Size = new System.Drawing.Size(800, 800),
+                StartPosition = FormStartPosition.CenterScreen,
+                ShowIcon = false
+            };
+
+            PictureBox pb = new PictureBox()
+            {
+                Dock = DockStyle.Fill,
+                Image = selectedPictureBox.Image,
+                SizeMode = PictureBoxSizeMode.Zoom
+            };
+
+            viewForm.Controls.Add(pb);
+            viewForm.ShowDialog();
         }
 
         private void btnDeleteSelected_Click(object sender, EventArgs e)

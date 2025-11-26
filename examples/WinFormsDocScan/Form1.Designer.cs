@@ -31,6 +31,7 @@
             components = new System.ComponentModel.Container();
             panel1 = new Panel();
             btnDeleteSelected = new Button();
+            btnViewImage = new Button();
             btnSaveToPDF = new Button();
             btnWebcam = new Button();
             btnLoadFiles = new Button();
@@ -50,6 +51,7 @@
             panel1.BorderStyle = BorderStyle.FixedSingle;
             panel1.Controls.Add(progressBar1);
             panel1.Controls.Add(btnDeleteSelected);
+            panel1.Controls.Add(btnViewImage);
             panel1.Controls.Add(btnSaveToPDF);
             panel1.Controls.Add(btnWebcam);
             panel1.Controls.Add(btnLoadFiles);
@@ -79,8 +81,23 @@
             btnDeleteSelected.UseVisualStyleBackColor = false;
             btnDeleteSelected.Click += btnDeleteSelected_Click;
             // 
-            // btnSaveToPDF
+            // btnViewImage
             // 
+            btnViewImage.BackColor = Color.FromArgb(0, 150, 136);
+            btnViewImage.FlatAppearance.BorderColor = Color.FromArgb(0, 121, 107);
+            btnViewImage.FlatStyle = FlatStyle.Flat;
+            btnViewImage.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            btnViewImage.ForeColor = Color.White;
+            btnViewImage.Location = new Point(845, 10);
+            btnViewImage.Name = "btnViewImage";
+            btnViewImage.Size = new Size(150, 38);
+            btnViewImage.TabIndex = 10;
+            btnViewImage.Text = "👁️ View";
+            btnViewImage.UseVisualStyleBackColor = false;
+            btnViewImage.Click += btnViewImage_Click;
+            // 
+            // btnSaveToPDF
+            //  
             btnSaveToPDF.BackColor = Color.FromArgb(16, 137, 62);
             btnSaveToPDF.FlatAppearance.BorderColor = Color.FromArgb(14, 123, 56);
             btnSaveToPDF.FlatStyle = FlatStyle.Flat;
@@ -240,6 +257,7 @@
         private Button btnWebcam;
         private Button btnSaveToPDF;
         private Button btnDeleteSelected;
+        private Button btnViewImage;
         private ProgressBar progressBar1;
         private FlowLayoutPanel flowLayoutPanel1;
     }
