@@ -2,6 +2,8 @@
 
 A modern, feature-rich document scanning application built with .NET 8 and Windows Forms. Scan documents from TWAIN/WIA scanners, capture images from webcam, load images/PDFs from disk, and save everything as a PDF file.
 
+https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
+
 ## ✨ Features
 
 ### 📥 Multiple Input Methods
@@ -58,6 +60,8 @@ A modern, feature-rich document scanning application built with .NET 8 and Windo
    dotnet run
    ```
 
+   ![.NET document scanner](https://www.dynamsoft.com/codepool/img/2025/11/dotnet-document-scanner-webcam-file.png)
+   
 ## 📖 Usage Guide
 
 ### Scanning Documents
