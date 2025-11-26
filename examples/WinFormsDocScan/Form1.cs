@@ -24,6 +24,10 @@ namespace WinFormsDocScan
         private PictureBox? selectedPictureBox;
         private System.Windows.Forms.Timer? webcamTimer;
 
+        // Drag and drop fields
+        private Panel? draggedPanel;
+        private System.Drawing.Point dragStartPoint;
+
         public Form1()
         {
             InitializeComponent();
@@ -36,6 +40,14 @@ namespace WinFormsDocScan
 
             flowLayoutPanel1.FlowDirection = FlowDirection.LeftToRight;
             flowLayoutPanel1.AutoScroll = true;
+
+            // Enable drag and drop for file loading
+            this.AllowDrop = true;
+            flowLayoutPanel1.AllowDrop = true;
+            this.DragEnter += Form1_DragEnter;
+            this.DragDrop += Form1_DragDrop;
+            flowLayoutPanel1.DragEnter += Form1_DragEnter;
+            flowLayoutPanel1.DragDrop += Form1_DragDrop;
         }
 
         private async void button1_Click(object sender, EventArgs e)
@@ -68,6 +80,50 @@ namespace WinFormsDocScan
 
             comboBox1.DataSource = Items;
             comboBox1.SelectedIndex = 0;
+        }
+
+        private void Form1_DragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void Form1_DragDrop(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[]? files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (files != null)
+                {
+                    foreach (string file in files)
+                    {
+                        string ext = Path.GetExtension(file).ToLower();
+                        try
+                        {
+                            if (ext == ".pdf")
+                            {
+                                LoadPdfFile(file);
+                            }
+                            else if (ext == ".jpg" || ext == ".jpeg" || ext == ".png" ||
+                                     ext == ".bmp" || ext == ".gif" || ext == ".tiff")
+                            {
+                                System.Drawing.Image image = System.Drawing.Image.FromFile(file);
+                                AddImageToPanel(image);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error loading file {Path.GetFileName(file)}: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
         }
 
         private async void button2_Click(object sender, EventArgs e)
@@ -155,10 +211,43 @@ namespace WinFormsDocScan
             containerPanel.Click += ContainerPanel_Click;
             pictureBox.Click += ContainerPanel_Click;
 
+            // Enable drag-and-drop for reordering
+            containerPanel.MouseDown += ContainerPanel_MouseDown;
+            containerPanel.MouseMove += ContainerPanel_MouseMove;
+            containerPanel.MouseUp += ContainerPanel_MouseUp;
+            containerPanel.DragEnter += ContainerPanel_DragEnter;
+            containerPanel.DragDrop += ContainerPanel_DragDrop;
+            containerPanel.DragOver += ContainerPanel_DragOver;
+            containerPanel.DragLeave += ContainerPanel_DragLeave;
+            containerPanel.AllowDrop = true;
+
+            // Also attach drag events to PictureBox so dragging the image works
+            pictureBox.MouseDown += ContainerPanel_MouseDown;
+            pictureBox.MouseMove += ContainerPanel_MouseMove;
+            pictureBox.MouseUp += ContainerPanel_MouseUp;
+            pictureBox.DragEnter += ContainerPanel_DragEnter;
+            pictureBox.DragDrop += ContainerPanel_DragDrop;
+            pictureBox.DragOver += ContainerPanel_DragOver;
+            pictureBox.DragLeave += ContainerPanel_DragLeave;
+            pictureBox.AllowDrop = true;
+
             containerPanel.Controls.Add(pictureBox);
             containerPanel.Controls.Add(lblIndex);
             flowLayoutPanel1.Controls.Add(containerPanel);
-            flowLayoutPanel1.Controls.SetChildIndex(containerPanel, 0);
+            
+            // Select the new image
+            if (selectedPictureBox != null && selectedPictureBox.Parent is Panel oldPanel)
+            {
+                oldPanel.BackColor = Color.White;
+                oldPanel.BorderStyle = BorderStyle.FixedSingle;
+            }
+            
+            containerPanel.BackColor = Color.FromArgb(230, 240, 255);
+            containerPanel.BorderStyle = BorderStyle.FixedSingle;
+            selectedPictureBox = pictureBox;
+
+            // Scroll to the new image
+            flowLayoutPanel1.ScrollControlIntoView(containerPanel);
         }
 
         private void ContainerPanel_Click(object? sender, EventArgs e)
@@ -190,6 +279,166 @@ namespace WinFormsDocScan
 
                 selectedPictureBox = containerPanel.Tag as PictureBox;
             }
+        }
+
+        private void ContainerPanel_MouseDown(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (sender is Panel panel)
+                {
+                    draggedPanel = panel;
+                }
+                else if (sender is PictureBox pb && pb.Parent is Panel parent)
+                {
+                    draggedPanel = parent;
+                }
+
+                if (draggedPanel != null)
+                {
+                    // Select the dragged panel immediately
+                    if (selectedPictureBox != null && selectedPictureBox.Parent is Panel oldPanel && oldPanel != draggedPanel)
+                    {
+                        oldPanel.BackColor = Color.White;
+                        oldPanel.BorderStyle = BorderStyle.FixedSingle;
+                    }
+
+                    draggedPanel.BackColor = Color.FromArgb(230, 240, 255);
+                    draggedPanel.BorderStyle = BorderStyle.FixedSingle;
+                    selectedPictureBox = draggedPanel.Tag as PictureBox;
+
+                    dragStartPoint = e.Location;
+                    // Give visual feedback that item is ready to drag
+                    draggedPanel.Cursor = Cursors.SizeAll;
+                }
+            }
+        }
+
+        private void ContainerPanel_MouseMove(object? sender, MouseEventArgs e)
+        {
+            Panel? sourcePanel = null;
+            if (sender is Panel p) sourcePanel = p;
+            else if (sender is PictureBox pb) sourcePanel = pb.Parent as Panel;
+
+            if (draggedPanel != null && sourcePanel != null && draggedPanel == sourcePanel)
+            {
+                // Check if mouse moved enough to start drag operation
+                if (Math.Abs(e.X - dragStartPoint.X) > 10 || Math.Abs(e.Y - dragStartPoint.Y) > 10)
+                {
+                    // Visual feedback during drag
+                    // Capture draggedPanel in a local variable because DoDragDrop is blocking
+                    // and draggedPanel might be set to null in the DragDrop event handler
+                    Panel panelToDrag = draggedPanel;
+                    var originalBorderStyle = panelToDrag.BorderStyle;
+                    panelToDrag.BorderStyle = BorderStyle.Fixed3D;
+
+                    DragDropEffects effect = panelToDrag.DoDragDrop(panelToDrag, DragDropEffects.Move);
+
+                    // Reset appearance and cursor after drag
+                    if (!panelToDrag.IsDisposed)
+                    {
+                        panelToDrag.BorderStyle = originalBorderStyle;
+                        panelToDrag.Cursor = Cursors.Hand;
+                    }
+                    draggedPanel = null;
+                }
+            }
+        }
+
+        private void ContainerPanel_MouseUp(object? sender, MouseEventArgs e)
+        {
+            // Reset drag state if mouse released without dragging
+            if (draggedPanel != null)
+            {
+                draggedPanel.Cursor = Cursors.Hand;
+                draggedPanel = null;
+            }
+        }
+
+        private void ContainerPanel_DragEnter(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(typeof(Panel)))
+            {
+                e.Effect = DragDropEffects.Move;
+            }
+            else if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void ContainerPanel_DragOver(object? sender, DragEventArgs e)
+        {
+            if (e.Data != null && e.Data.GetDataPresent(typeof(Panel)))
+            {
+                e.Effect = DragDropEffects.Move;
+
+                // Visual feedback: highlight the target panel
+                Panel? targetPanel = null;
+                if (sender is Panel p) targetPanel = p;
+                else if (sender is PictureBox pb) targetPanel = pb.Parent as Panel;
+
+                if (targetPanel != null)
+                {
+                    targetPanel.BackColor = Color.FromArgb(220, 235, 255);
+                }
+            }
+            else if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
+            }
+        }
+
+        private void ContainerPanel_DragLeave(object? sender, EventArgs e)
+        {
+            Panel? targetPanel = null;
+            if (sender is Panel p) targetPanel = p;
+            else if (sender is PictureBox pb) targetPanel = pb.Parent as Panel;
+
+            if (targetPanel != null)
+            {
+                bool isSelected = (selectedPictureBox != null && selectedPictureBox.Parent == targetPanel);
+                targetPanel.BackColor = isSelected ? Color.FromArgb(230, 240, 255) : Color.White;
+            }
+        }
+
+        private void ContainerPanel_DragDrop(object? sender, DragEventArgs e)
+        {
+            Panel? targetPanel = null;
+            if (sender is Panel p) targetPanel = p;
+            else if (sender is PictureBox pb) targetPanel = pb.Parent as Panel;
+
+            if (targetPanel != null && e.Data != null && e.Data.GetData(typeof(Panel)) is Panel sourcePanel)
+            {
+                // Restore target panel color
+                bool isSelected = (selectedPictureBox != null && selectedPictureBox.Parent == targetPanel);
+                targetPanel.BackColor = isSelected ? Color.FromArgb(230, 240, 255) : Color.White;
+
+                if (sourcePanel != targetPanel)
+                {
+                    int sourceIndex = flowLayoutPanel1.Controls.GetChildIndex(sourcePanel);
+                    int targetIndex = flowLayoutPanel1.Controls.GetChildIndex(targetPanel);
+
+                    // Move the source panel to target position
+                    flowLayoutPanel1.Controls.SetChildIndex(sourcePanel, targetIndex);
+
+                    // Update labels after reordering
+                    UpdateImageLabels();
+                }
+            }
+            else if (e.Data != null && e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                Form1_DragDrop(sender, e);
+            }
+            draggedPanel = null;
         }
 
         private void btnLoadFiles_Click(object sender, EventArgs e)
@@ -387,7 +636,7 @@ namespace WinFormsDocScan
                     {
                         PdfDocument document = new PdfDocument();
 
-                        for (int i = flowLayoutPanel1.Controls.Count - 1; i >= 0; i--)
+                        for (int i = 0; i < flowLayoutPanel1.Controls.Count; i++)
                         {
                             Control control = flowLayoutPanel1.Controls[i];
                             if (control is Panel panel && panel.Tag is PictureBox pb && pb.Image != null)
@@ -476,7 +725,7 @@ namespace WinFormsDocScan
                     {
                         if (child is Label lbl)
                         {
-                            lbl.Text = $"Image {flowLayoutPanel1.Controls.Count - i}";
+                            lbl.Text = $"Image {i + 1}";
                         }
                     }
                 }
