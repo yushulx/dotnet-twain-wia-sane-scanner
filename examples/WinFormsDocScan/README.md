@@ -118,3 +118,5 @@ https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
 - **SkiaSharp**: Cross-platform 2D graphics
 - **Twain.Wia.Sane.Scanner**: Scanner integration
 
+## Blog
+[How to Build a WinForms Document Scanner in .NET: TWAIN, Webcam & PDF Export](https://www.dynamsoft.com/codepool/winforms-scanner-app-twain-webcam-pdf.html)
