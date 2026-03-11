@@ -98,7 +98,7 @@ public class ScannerController
         try
         {
             // Extract license key from parameters
-            string licenseKey = parameters.ContainsKey("license") ? parameters["license"].ToString() : "";
+            string licenseKey = parameters.ContainsKey("license") ? parameters["license"].ToString() ?? "" : "";
 
             // Prepare JSON body
             string json = JsonSerializer.Serialize(parameters);
