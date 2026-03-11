@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics;
+using Newtonsoft.Json;
 using Twain.Wia.Sane.Scanner;
 
 public class Program
@@ -10,8 +11,9 @@ public class Program
     private static string questions = @"
 Please select an operation:
 1. Get scanners
-2. Acquire documents by scanner index
-3. Quit
+2. Acquire documents (blocking)
+3. Acquire documents (non-blocking)
+4. Quit
 ";
 
     public static async Task Main()
@@ -20,6 +22,166 @@ Please select an operation:
         Console.WriteLine($"Server info: {info}");
         await AskQuestion();
     }
+
+    // ---------------------------------------------------------------
+    // Shared helpers
+    // ---------------------------------------------------------------
+
+    private static int PromptScannerIndex()
+    {
+        Console.Write($"\nSelect a scanner index (<= {devices.Count - 1}): ");
+        if (!int.TryParse(Console.ReadLine(), out int index))
+        {
+            Console.WriteLine("Invalid input. Please enter a number.");
+            return -1;
+        }
+        if (index < 0 || index >= devices.Count)
+        {
+            Console.WriteLine("Index is out of range.");
+            return -1;
+        }
+        return index;
+    }
+
+    private static async Task<(string jobId, string docId)> SetupJobAndDocument(int deviceIndex)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            {"license", licenseKey},
+            {"device", devices[deviceIndex]["device"]},
+            {"autoRun", true}
+        };
+        parameters["config"] = new Dictionary<string, object>
+        {
+            {"IfShowUI", false},
+            {"PixelType", 2},
+            {"Resolution", 200},
+            {"IfFeederEnabled", true},
+            {"IfDuplexEnabled", false}
+        };
+
+        var jobInfo = await scannerController.CreateJob(host, parameters);
+        var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
+        string jobId = (string)job!["jobuid"];
+        if (string.IsNullOrEmpty(jobId))
+            throw new Exception("Failed to create scan job.");
+
+        var docInfo = await scannerController.CreateDocument(host, new Dictionary<string, object>());
+        var doc = JsonConvert.DeserializeObject<Dictionary<string, object>>(docInfo);
+        string docId = (string)doc!["uid"];
+        if (string.IsNullOrEmpty(docId))
+            throw new Exception("Failed to create document.");
+
+        return (jobId, docId);
+    }
+
+    private static void PrintBenchmarkResult(string label, int pageCount, long elapsedMs)
+    {
+        Console.WriteLine($"\n[Benchmark] {label}");
+        Console.WriteLine($"  Pages fetched : {pageCount}");
+        Console.WriteLine($"  Elapsed time  : {elapsedMs} ms");
+        if (pageCount > 0)
+            Console.WriteLine($"  Avg per page  : {elapsedMs / pageCount} ms");
+        Console.WriteLine();
+    }
+
+    // ---------------------------------------------------------------
+    // Blocking acquisition
+    // ---------------------------------------------------------------
+
+    private static async Task AcquireBlocking(int deviceIndex)
+    {
+        var (jobId, docId) = await SetupJobAndDocument(deviceIndex);
+
+        var sw = Stopwatch.StartNew();
+        var images = await scannerController.GetImageFiles(host, jobId, "./");
+        sw.Stop();
+
+        for (int i = 0; i < images.Count; i++)
+        {
+            Console.WriteLine($"Image {i}: {images[i]}");
+            var imageInfo = await scannerController.GetImageInfo(host, jobId);
+            var image = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo);
+            if (image != null && image.ContainsKey("url"))
+            {
+                var pageParams = new Dictionary<string, object>
+                {
+                    {"password", ""},
+                    {"source", image["url"]}
+                };
+                await scannerController.InsertPage(host, docId, pageParams);
+            }
+        }
+
+        PrintBenchmarkResult("Blocking (GetImageFiles)", images.Count, sw.ElapsedMilliseconds);
+
+        var docFile = await scannerController.GetDocumentFile(host, docId, "./");
+        Console.WriteLine($"Document file: {docFile}");
+
+        await scannerController.DeleteDocument(host, docId);
+        await scannerController.DeleteJob(host, jobId);
+    }
+
+    // ---------------------------------------------------------------
+    // Non-blocking acquisition
+    // ---------------------------------------------------------------
+
+    private static async Task AcquireNonBlocking(int deviceIndex)
+    {
+        var (jobId, docId) = await SetupJobAndDocument(deviceIndex);
+
+        var fetchTasks = new List<Task>();
+        int imageIndex = 0;
+
+        var sw = Stopwatch.StartNew();
+
+        while (true)
+        {
+            var imageInfo = await scannerController.GetImageInfo(host, jobId);
+            if (string.IsNullOrEmpty(imageInfo))
+                break;
+
+            Dictionary<string, object>? image;
+            try { image = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo); }
+            catch { break; }
+
+            if (image == null || !image.ContainsKey("url"))
+                break;
+
+            int currentIndex = imageIndex++;
+            string imageUrl = image["url"]?.ToString() ?? "";
+
+            fetchTasks.Add(Task.Run(async () =>
+            {
+                string filename = await scannerController.GetImageFileByIndex(host, jobId, currentIndex, "./", "image/jpeg");
+                Console.WriteLine($"Image {currentIndex}: {filename}");
+
+                if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    await scannerController.InsertPage(host, docId, new Dictionary<string, object>
+                    {
+                        {"password", ""},
+                        {"source", imageUrl}
+                    });
+                }
+            }));
+        }
+
+        await Task.WhenAll(fetchTasks);
+        sw.Stop();
+
+        PrintBenchmarkResult("Non-blocking (GetImageFileByIndex + Task.Run)", imageIndex, sw.ElapsedMilliseconds);
+
+        var docFile = await scannerController.GetDocumentFile(host, docId, "./");
+        Console.WriteLine($"Document file: {docFile}");
+
+        await scannerController.DeleteDocument(host, docId);
+        await scannerController.DeleteJob(host, jobId);
+    }
+
+    // ---------------------------------------------------------------
+    // Menu loop
+    // ---------------------------------------------------------------
 
     private static async Task<int> AskQuestion()
     {
@@ -30,11 +192,9 @@ Please select an operation:
             string? answer = Console.ReadLine();
 
             if (string.IsNullOrEmpty(answer))
-            {
                 continue;
-            }
 
-            if (answer == "3")
+            if (answer == "4")
             {
                 break;
             }
@@ -42,21 +202,21 @@ Please select an operation:
             {
                 var scannerInfo = await scannerController.GetDevices(host, ScannerType.TWAINSCANNER | ScannerType.TWAINX64SCANNER);
                 devices.Clear();
-
-                try { 
+                try
+                {
                     var scanners = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(scannerInfo);
-                    for (int i = 0; i < scanners.Count; i++)
+                    for (int i = 0; i < scanners!.Count; i++)
                     {
-                        var scanner = scanners[i];
-                        devices.Add(scanner);
-                        Console.WriteLine($"\nIndex: {i}, Name: {scanner["name"]}");
+                        devices.Add(scanners[i]);
+                        Console.WriteLine($"\nIndex: {i}, Name: {scanners[i]["name"]}");
                     }
-                } catch (Exception ex) { 
-                   Console.WriteLine($"Error: {ex.Message}");
                 }
-                
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                }
             }
-            else if (answer == "2")
+            else if (answer == "2" || answer == "3")
             {
                 if (devices.Count == 0)
                 {
@@ -64,124 +224,20 @@ Please select an operation:
                     continue;
                 }
 
-                Console.Write($"\nSelect an index (<= {devices.Count - 1}): ");
-                int index;
-                if (!int.TryParse(Console.ReadLine(), out index))
-                {
-                    Console.WriteLine("Invalid input. Please enter a number.");
-                    continue;
-                }
+                int deviceIndex = PromptScannerIndex();
+                if (deviceIndex < 0) continue;
 
-                if (index < 0 || index >= devices.Count)
-                {
-                    Console.WriteLine("It is out of range.");
-                    continue;
-                }
-
-                var parameters = new Dictionary<string, object>
-                {
-                    {"license", licenseKey},
-                    {"device", devices[index]["device"]},
-                    {"autoRun", true}
-                };
-
-                parameters["config"] = new Dictionary<string, object>
-                {
-                    {"IfShowUI", false},
-                    {"PixelType", 2},
-                    {"Resolution", 200},
-                    {"IfFeederEnabled", true},
-                    {"IfDuplexEnabled", false}
-                };
-
-                var jobInfo = await scannerController.CreateJob(host, parameters);
-                string jobId = "";
                 try
                 {
-                    var job = JsonConvert.DeserializeObject<Dictionary<string, object>>(jobInfo);
-                    jobId = (string)job["jobuid"];
-
-                    if (string.IsNullOrEmpty(jobId))
-                    {
-                        Console.WriteLine("Failed to create job.");
-                        continue;
-                    }
+                    if (answer == "2")
+                        await AcquireBlocking(deviceIndex);
+                    else
+                        await AcquireNonBlocking(deviceIndex);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    continue;
                 }
-
-                //var checkJob = await scannerController.CheckJob(host, jobId);
-                //Console.WriteLine($"Check job: {checkJob}");
-
-                //var caps = await scannerController.GetScannerCapabilities(host, jobId);
-                //Console.WriteLine($"Capabilities: {caps}");
-
-                //var status = new Dictionary<string, object>() {
-                //    { "status", JobStatus.RUNNING}
-                //};
-                //var updateJob = await scannerController.UpdateJob(host, jobId, status);
-                //Console.WriteLine($"Update job: {updateJob}");
-
-                var docInfo = await scannerController.CreateDocument(host, new Dictionary<string, object>());
-                string docId = "";
-                try
-                {
-                    var doc = JsonConvert.DeserializeObject<Dictionary<string, object>>(docInfo);
-                    docId = (string)doc["uid"];
-
-                    if (string.IsNullOrEmpty(docId))
-                    {
-                        Console.WriteLine("Failed to create a document.");
-                        continue;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    continue;
-                }
-
-                var images = await scannerController.GetImageFiles(host, jobId, "./");
-                for (int i = 0; i < images.Count; i++)
-                {
-                    Console.WriteLine($"Image {i}: {images[i]}");
-
-                    var imageInfo = await scannerController.GetImageInfo(host, jobId);
-                    //Console.WriteLine($"Image info: {imageInfo}");
-
-                    var image = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo);
-
-                    parameters = new Dictionary<string, object>
-                    {
-                        {"password", ""},
-                        {"source", image["url"]}
-                    };
-
-                    var insertPage = await scannerController.InsertPage(host, docId, parameters);
-                    //Console.WriteLine($"Insert page: {insertPage}");
-
-                    //var pageList = JsonConvert.DeserializeObject<Dictionary<string, object>>(insertPage);
-                    //var pages = (JArray)pageList["pages"];
-                    //JObject firstPage = (JObject)pages[0];
-                    //string uid = firstPage["uid"]?.ToString();
-                    //var deletePage = await scannerController.DeletePage(host, docId, uid);
-                }
-
-                //var info = await scannerController.GetDocumentInfo(host, docId);
-                //Console.WriteLine($"Document info: {info}");
-
-                var docFile = await scannerController.GetDocumentFile(host, docId, "./");
-                Console.WriteLine($"Document file: {docFile}");
-
-                await scannerController.DeleteDocument(host, docId);
-                await scannerController.DeleteJob(host, jobId);
-            }
-            else
-            {
-                continue;
             }
         }
         return 0;

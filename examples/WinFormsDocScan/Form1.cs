@@ -179,21 +179,40 @@ namespace WinFormsDocScan
                 progressBar1.MarqueeAnimationSpeed = 30;
                 progressBar1.Visible = true;
 
+                var fetchTasks = new List<Task>();
+                int imageIndex = 0;
+
                 while (true)
                 {
-                    byte[] bytes = await scannerController.GetImageStream(host, jobId);
-
-                    if (bytes.Length == 0)
-                    {
+                    var imageInfo = await scannerController.GetImageInfo(host, jobId);
+                    if (string.IsNullOrEmpty(imageInfo))
                         break;
-                    }
 
-                    MemoryStream stream = new MemoryStream(bytes);
-                    System.Drawing.Image image = System.Drawing.Image.FromStream(stream);
-                    AddImageToPanel(image);
+                    Dictionary<string, object>? imgMeta;
+                    try { imgMeta = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo); }
+                    catch { break; }
 
-                    Application.DoEvents();
+                    if (imgMeta == null || !imgMeta.ContainsKey("url"))
+                        break;
+
+                    int currentIndex = imageIndex++;
+                    fetchTasks.Add(Task.Run(async () =>
+                    {
+                        var response = await scannerController.GetImageContentHttpResponse(host, jobId, currentIndex, "image/jpeg");
+                        if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                            this.Invoke(() =>
+                            {
+                                MemoryStream stream = new MemoryStream(bytes);
+                                System.Drawing.Image img = System.Drawing.Image.FromStream(stream);
+                                AddImageToPanel(img);
+                            });
+                        }
+                    }));
                 }
+
+                await Task.WhenAll(fetchTasks);
 
                 progressBar1.Visible = false;
                 progressBar1.Style = ProgressBarStyle.Blocks;

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>Twain.Wia.Sane.Scanner</PackageId>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Authors>yushulx</Authors>
     <Company>Dynamsoft</Company>
     <TargetFramework>net8.0</TargetFramework>
@@ -18,7 +18,8 @@
     <PackageTags>
       TWAIN;SANE;ICA;eSCL;WIA;Document;Scanner;RESTful</PackageTags>
     <PackageReleaseNotes>
-      - Renamed custom headers.
+      - Added GetImageContentHttpResponse: non-blocking page fetch by zero-based index via /content?page={index} endpoint.
+      - Added GetImageFileByIndex: saves a scanned page to disk by index using the non-blocking API.
     </PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

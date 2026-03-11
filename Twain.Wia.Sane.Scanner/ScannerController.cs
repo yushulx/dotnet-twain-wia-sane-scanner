@@ -306,6 +306,65 @@ public class ScannerController
     }
 
     /// <summary>
+    /// Get the HTTP response for an image at a specific index using the non-blocking content API.
+    /// Returns 200 with image data when the page is available, or 204 when no image exists at that index.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <param name="index">The zero-based page index.</param>
+    /// <param name="imageType">The image MIME type: "image/png" or "image/jpeg". Defaults to "image/jpeg".</param>
+    /// <returns>HTTP response.</returns>
+    public async Task<HttpResponseMessage> GetImageContentHttpResponse(string host, string jobId, int index, string imageType = "image/jpeg")
+    {
+        string url = $"{host}/api/device/scanners/jobs/{jobId}/content?page={index}&type={Uri.EscapeDataString(imageType)}";
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+            return response;
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Request error: {ex.Message}");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Save a scanned page at the given index to a file using the non-blocking content API.
+    /// </summary>
+    /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>
+    /// <param name="jobId">The ID of the job.</param>
+    /// <param name="index">The zero-based page index.</param>
+    /// <param name="directory">The directory to save the image file.</param>
+    /// <param name="imageType">The image MIME type: "image/png" or "image/jpeg". Defaults to "image/jpeg".</param>
+    /// <returns>The saved filename, or an empty string when the page is not available (204) or an error occurred.</returns>
+    public async Task<string> GetImageFileByIndex(string host, string jobId, int index, string directory, string imageType = "image/jpeg")
+    {
+        try
+        {
+            var response = await GetImageContentHttpResponse(host, jobId, index, imageType);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string ext = imageType == "image/png" ? "png" : "jpg";
+                string filename = $"image_{index}.{ext}";
+                string imagePath = Path.Combine(directory, filename);
+                using (var fs = new FileStream(imagePath, FileMode.Create))
+                {
+                    await response.Content.CopyToAsync(fs);
+                }
+                return filename;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to fetch image at index {index}: {ex.Message}");
+        }
+
+        return "";
+    }
+
+    /// <summary>
     /// Check the status of a job.
     /// </summary>
     /// <param name="host">The URL of the Dynamic Web TWAIN Service API.</param>

@@ -165,12 +165,29 @@ Please select an operation:
                     continue;
                 }
 
-                var images = await scannerController.GetImageFiles(host, jobId, "./");
-                for (int i = 0; i < images.Count; i++)
+                var fetchTasks = new List<Task>();
+                int imageIndex = 0;
+
+                while (true)
                 {
-                    Console.WriteLine($"Image {i}: {images[i]}");
+                    var imageInfo = await scannerController.GetImageInfo(host, jobId);
+                    if (string.IsNullOrEmpty(imageInfo)) break;
+
+                    Dictionary<string, object>? image;
+                    try { image = JsonConvert.DeserializeObject<Dictionary<string, object>>(imageInfo); }
+                    catch { break; }
+
+                    if (image == null || !image.ContainsKey("url")) break;
+
+                    int currentIndex = imageIndex++;
+                    fetchTasks.Add(Task.Run(async () =>
+                    {
+                        string filename = await scannerController.GetImageFileByIndex(host, jobId, currentIndex, "./", "image/jpeg");
+                        Console.WriteLine($"Image {currentIndex}: {filename}");
+                    }));
                 }
 
+                await Task.WhenAll(fetchTasks);
                 await scannerController.DeleteJob(host, jobId);
             }
             else
@@ -203,30 +220,45 @@ Please select an operation:
 
 ### 🎛️ Scanner APIs
 
-- `GetDevices(string host, int? scannerType = null)`
-- `CreateJob(string host, Dictionary<string, object> parameters)`
-- `CheckJob(string host, string jobId)`
-- `UpdateJob(string host, string jobId, Dictionary<string, object> parameters)`
-- `DeleteJob(string host, string jobId)`
-- `GetScannerCapabilities(string host, string jobId)`
-- `GetImageInfo(string host, string jobId)`
+- `GetDevices(string host, int? scannerType = null)` — Returns a JSON string listing all available scanner devices. Optionally filter by scanner type using the `ScannerType` constants (e.g., `ScannerType.TWAINSCANNER | ScannerType.WIASCANNER`).
+- `GetDevicesHttpResponse(string host, int? scannerType = null)` — Returns the raw `HttpResponseMessage` from the devices endpoint. Use when you need access to HTTP status codes or headers directly.
+- `CreateJob(string host, Dictionary<string, object> parameters)` — Creates a scan job with the specified parameters (license key, device ID, scanner config) and returns a JSON string containing the `jobuid`.
+- `CreateJobHttpResponse(string host, Dictionary<string, object> parameters)` — Returns the raw `HttpResponseMessage` for job creation.
+- `CheckJob(string host, string jobId)` — Returns the current status of a scan job as a JSON string (e.g., running, completed, canceled).
+- `UpdateJob(string host, string jobId, Dictionary<string, object> parameters)` — Updates a job using HTTP PATCH, e.g., to change the status to `JobStatus.CANCELED`.
+- `DeleteJob(string host, string jobId)` — Deletes a scan job and frees its resources on the service. Returns the `HttpResponseMessage`.
+- `GetScannerCapabilities(string host, string jobId)` — Returns the scanner's capabilities (resolution ranges, pixel types, duplex support, etc.) as a JSON string.
+- `GetImageInfo(string host, string jobId)` — Polls the service for metadata about the next available scanned page. Blocks until a page is ready and returns a JSON string containing the page `url` and other attributes. Returns an empty string when no more pages are available.
+- `GetServerInfo(string host)` — Returns the Dynamic Web TWAIN Service version information as a JSON string.
 
 ### 📸 Image APIs
 
-- `GetImageFile(string host, string jobId, string directory)`
-- `GetImageFiles(string host, string jobId, string directory)`
-- `GetImageStream(string host, string jobId)`
-- `GetImageStreams(string host, string jobId)`
+#### Blocking
+
+These methods use the `/next-page` endpoint, which blocks until the scanner delivers the next page. They process pages sequentially and return `204` / empty when scanning is complete.
+
+- `GetImageStreamHttpResponse(string host, string jobId)` — Returns the raw `HttpResponseMessage` from the blocking `/next-page` endpoint. Status `200` means a page is ready; `204` means scanning is complete.
+- `GetImageStream(string host, string jobId)` — Fetches the next scanned page as a `byte[]`. Returns an empty array when no more pages are available.
+- `GetImageStreams(string host, string jobId)` — Repeatedly calls `GetImageStream` until no more pages are available and returns all page bytes as `List<byte[]>`.
+- `GetImageFile(string host, string jobId, string directory)` — Saves the next scanned page to a JPEG file in `directory`. Returns the filename, or an empty string when scanning is complete.
+- `GetImageFiles(string host, string jobId, string directory)` — Repeatedly calls `GetImageFile` until scanning is complete and returns the list of all saved filenames.
+
+#### Non-blocking
+
+These methods use the `/content?page={index}` endpoint, which returns immediately. Pair with `GetImageInfo` in a loop to detect when each page is ready, then fetch pages concurrently with `Task.Run`.
+
+- `GetImageContentHttpResponse(string host, string jobId, int index, string imageType = "image/jpeg")` — Returns the raw `HttpResponseMessage` for the page at the given zero-based `index`. Status `200` means the page is available; `204` means no page exists at that index yet. Supports `"image/jpeg"` and `"image/png"`.
+- `GetImageFileByIndex(string host, string jobId, int index, string directory, string imageType = "image/jpeg")` — Saves the page at `index` to disk using the non-blocking content API. Returns the saved filename (e.g., `image_0.jpg`), or an empty string on `204` or error.
 
 ### 📄 Document APIs
 
-- `CreateDocument(string host, Dictionary<string, object> parameters)`
-- `GetDocumentInfo(string host, string docId)`
-- `DeleteDocument(string host, string docId)`
-- `GetDocumentFile(string host, string docId, string directory)`
-- `GetDocumentStream(string host, string docId)`
-- `InsertPage(string host, string docId, Dictionary<string, object> parameters)`
-- `DeletePage(string host, string docId, string pageId)`
+- `CreateDocument(string host, Dictionary<string, object> parameters)` — Creates a new document container in the service and returns a JSON string with the document `uid`.
+- `GetDocumentInfo(string host, string docId)` — Returns document metadata (pages, creation time, etc.) as a JSON string.
+- `DeleteDocument(string host, string docId)` — Deletes a document and all its pages from the service. Returns the `HttpResponseMessage`.
+- `GetDocumentFile(string host, string docId, string directory)` — Downloads the document as a PDF and saves it to `directory`. Returns the saved filename.
+- `GetDocumentStream(string host, string docId)` — Downloads the document content as a raw `byte[]` (PDF format).
+- `InsertPage(string host, string docId, Dictionary<string, object> parameters)` — Inserts a scanned image into a document. Required parameters: `source` (image URL from `GetImageInfo`) and `password` (empty string if none). Returns a JSON string with the updated page list.
+- `DeletePage(string host, string docId, string pageId)` — Deletes a specific page from a document by its page UID. Returns the `HttpResponseMessage`.
 
 ---
 
