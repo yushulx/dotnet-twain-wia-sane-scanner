@@ -4,6 +4,14 @@ A modern, feature-rich document scanning application built with .NET 8 and Windo
 
 https://github.com/user-attachments/assets/aec29d54-294c-4957-9919-ca47c1733fc7
 
+## Licensing and Support
+
+The WinFormsDocScan sample and the `Twain.Wia.Sane.Scanner` .NET wrapper are open source under this repository's [MIT license](../../LICENSE). This license does **not** apply to the proprietary Dynamsoft service or to third-party packages used by the sample.
+
+- **Dynamsoft component:** Scanner functionality relies on [Dynamic Web TWAIN Service](https://www.dynamsoft.com/web-twain/), which is licensed separately. A free trial is available; check Dynamsoft's licensing terms for continued or production use.
+- **Third-party libraries:** `OpenCvSharp4`, `PDFtoImage`, `PdfSharp`, `SkiaSharp`, and `Newtonsoft.Json` are independently maintained projects with their own license terms. Dynamsoft does not maintain these libraries; please direct package-specific questions, bugs, and support requests to their respective projects.
+- **Sample code and wrapper:** For issues specific to this sample application or the `Twain.Wia.Sane.Scanner` wrapper, please [open a GitHub issue](https://github.com/yushulx/dotnet-twain-wia-sane-scanner/issues).
+
 ## ✨ Features
 
 ### 📥 Multiple Input Methods
