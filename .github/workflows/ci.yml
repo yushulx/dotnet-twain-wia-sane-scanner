@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scanner-wrapper:
+    name: Build Twain.Wia.Sane.Scanner (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # The wrapper is a plain net8.0 library — no MAUI workload needed.
+      - name: Build
+        run: dotnet build Twain.Wia.Sane.Scanner/Twain.Wia.Sane.Scanner.csproj -c Release
+
+  documentbarcode:
+    name: Build documentbarcode MAUI sample
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows --skip-manifest-update
+
+      - name: Build
+        # Windows only: a scanner has to be attached at runtime anyway, and the
+        # Android/iOS targets need their own workloads.
+        run: >
+          dotnet build examples/documentbarcode/documentbarcode.csproj
+          -c Release
+          -f net8.0-windows10.0.19041.0
