@@ -38,8 +38,13 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Install MAUI workload
-        run: dotnet workload install maui-windows --skip-manifest-update
+      - name: Install MAUI workloads
+        # The sample multi-targets android/ios/maccatalyst/windows, and restore
+        # evaluates every target, so the whole MAUI workload set is required even
+        # though only the Windows target is built below.
+        run: |
+          dotnet workload install maui --skip-manifest-update
+          dotnet workload install wasm-tools --skip-manifest-update
 
       - name: Build
         # Windows only: a scanner has to be attached at runtime anyway, and the
