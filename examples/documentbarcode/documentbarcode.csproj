@@ -60,10 +60,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Dynamsoft.DotNet.BarcodeReader.Bundle" Version="11.0.3000" />
+		<PackageReference Include="Dynamsoft.DotNet.BarcodeReader.Bundle" Version="11.6.4000" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
-		<!--<PackageReference Include="Twain.Wia.Sane.Scanner" Version="1.2.0" />-->
+		<!--<PackageReference Include="Twain.Wia.Sane.Scanner" Version="2.1.0" />-->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 
